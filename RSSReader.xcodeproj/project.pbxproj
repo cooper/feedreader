@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */; };
 		BCC3475F19CB48E10058823E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3475E19CB48E10058823E /* AppDelegate.swift */; };
-		BCC3476119CB48E10058823E /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3476019CB48E10058823E /* MasterViewController.swift */; };
-		BCC3476319CB48E10058823E /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3476219CB48E10058823E /* DetailViewController.swift */; };
-		BCC3476619CB48E10058823E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BCC3476419CB48E10058823E /* Main.storyboard */; };
 		BCC3476819CB48E10058823E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BCC3476719CB48E10058823E /* Images.xcassets */; };
 		BCC3476B19CB48E10058823E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCC3476919CB48E10058823E /* LaunchScreen.xib */; };
 		BCC3477719CB48E10058823E /* RSSReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3477619CB48E10058823E /* RSSReaderTests.swift */; };
+		BCC3478119CB4A1D0058823E /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3478019CB4A1D0058823E /* Feed.swift */; };
+		BCC3478319CB4BEE0058823E /* FeedManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3478219CB4BEE0058823E /* FeedManager.swift */; };
+		BCDE3C0219DA39700018B268 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE3C0119DA39700018B268 /* Article.swift */; };
+		BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,17 +29,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListVC.swift; sourceTree = "<group>"; };
 		BCC3475919CB48E10058823E /* RSSReader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSSReader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCC3475D19CB48E10058823E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCC3475E19CB48E10058823E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		BCC3476019CB48E10058823E /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
-		BCC3476219CB48E10058823E /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
-		BCC3476519CB48E10058823E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BCC3476719CB48E10058823E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		BCC3476A19CB48E10058823E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		BCC3477019CB48E10058823E /* RSSReaderTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RSSReaderTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCC3477519CB48E10058823E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCC3477619CB48E10058823E /* RSSReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSSReaderTests.swift; sourceTree = "<group>"; };
+		BCC3478019CB4A1D0058823E /* Feed.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Feed.swift; sourceTree = "<group>"; };
+		BCC3478219CB4BEE0058823E /* FeedManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedManager.swift; sourceTree = "<group>"; };
+		BCDE3C0119DA39700018B268 /* Article.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
+		BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedAdderVC.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,11 +84,11 @@
 			isa = PBXGroup;
 			children = (
 				BCC3475E19CB48E10058823E /* AppDelegate.swift */,
-				BCC3476019CB48E10058823E /* MasterViewController.swift */,
-				BCC3476219CB48E10058823E /* DetailViewController.swift */,
-				BCC3476419CB48E10058823E /* Main.storyboard */,
-				BCC3476719CB48E10058823E /* Images.xcassets */,
+				BCD6591319DA4BEC00D6176A /* RSS */,
+				BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */,
+				BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */,
 				BCC3476919CB48E10058823E /* LaunchScreen.xib */,
+				BCC3476719CB48E10058823E /* Images.xcassets */,
 				BCC3475C19CB48E10058823E /* Supporting Files */,
 			);
 			path = RSSReader;
@@ -113,6 +117,16 @@
 				BCC3477519CB48E10058823E /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		BCD6591319DA4BEC00D6176A /* RSS */ = {
+			isa = PBXGroup;
+			children = (
+				BCC3478219CB4BEE0058823E /* FeedManager.swift */,
+				BCC3478019CB4A1D0058823E /* Feed.swift */,
+				BCDE3C0119DA39700018B268 /* Article.swift */,
+			);
+			name = RSS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,7 +209,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BCC3476619CB48E10058823E /* Main.storyboard in Resources */,
 				BCC3476B19CB48E10058823E /* LaunchScreen.xib in Resources */,
 				BCC3476819CB48E10058823E /* Images.xcassets in Resources */,
 			);
@@ -215,8 +228,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BCC3476319CB48E10058823E /* DetailViewController.swift in Sources */,
-				BCC3476119CB48E10058823E /* MasterViewController.swift in Sources */,
+				BCC3478319CB4BEE0058823E /* FeedManager.swift in Sources */,
+				BCC3478119CB4A1D0058823E /* Feed.swift in Sources */,
+				BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */,
+				BCDE3C0219DA39700018B268 /* Article.swift in Sources */,
+				BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */,
 				BCC3475F19CB48E10058823E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -240,14 +256,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		BCC3476419CB48E10058823E /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				BCC3476519CB48E10058823E /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		BCC3476919CB48E10058823E /* LaunchScreen.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -411,6 +419,7 @@
 				BCC3477C19CB48E10058823E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BCC3477D19CB48E10058823E /* Build configuration list for PBXNativeTarget "RSSReaderTests" */ = {
 			isa = XCConfigurationList;
@@ -419,6 +428,7 @@
 				BCC3477F19CB48E10058823E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

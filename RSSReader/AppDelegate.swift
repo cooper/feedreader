@@ -8,18 +8,44 @@
 
 import UIKit
 
+var rss : AppDelegate!
+
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    let feedManager = FeedManager()
+    
+    func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
+        rss = self
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        let feedVC = FeedListVC(nibName: nil, bundle: nil)
+        
+        let navigationController = UINavigationController(rootViewController: feedVC)
+        window!.rootViewController = navigationController
+        window!.makeKeyAndVisible()
 
+        // create two feeds.
+        let feed = Feed(urlString: "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml")
+        feedManager.addFeed(feed)
 
+        
+        let feed2 = Feed(urlString: "http://google.com")
+        feedManager.addFeed(feed2)
+
+        
+        return true;
+    }
+    
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
-        let splitViewController = self.window!.rootViewController as UISplitViewController
-        let navigationController = splitViewController.viewControllers[splitViewController.viewControllers.count-1] as UINavigationController
-        navigationController.topViewController.navigationItem.leftBarButtonItem = splitViewController.displayModeButtonItem()
-        splitViewController.delegate = self
+        
+        println("Loaded? \(window!.rootViewController!.view)")
+        
+        let feedVC = window!.rootViewController as FeedListVC
+        let alert  = UIAlertController(title: "Add feed", message: "Enter the feed URL", preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+        //feedVC.presentViewController(alert, animated: true, completion: nil)
+        
         return true
     }
 
@@ -43,20 +69,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    }
-
-    // MARK: - Split view
-
-    func splitViewController(splitViewController: UISplitViewController, collapseSecondaryViewController secondaryViewController:UIViewController!, ontoPrimaryViewController primaryViewController:UIViewController!) -> Bool {
-        if let secondaryAsNavController = secondaryViewController as? UINavigationController {
-            if let topAsDetailController = secondaryAsNavController.topViewController as? DetailViewController {
-                if topAsDetailController.detailItem == nil {
-                    // Return true to indicate that we have handled the collapse by doing nothing; the secondary controller will be discarded.
-                    return true
-                }
-            }
-        }
-        return false
     }
 
 }
