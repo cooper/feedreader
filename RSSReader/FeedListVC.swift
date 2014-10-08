@@ -93,6 +93,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             
             // empty string?
             let string = self._textField!.text!
+            self._textField = nil
             if countElements(string) < 1 { return }
             
             // create and add the feed.
