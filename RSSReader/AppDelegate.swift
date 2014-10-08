@@ -35,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let feed2 = Feed(urlString: "http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml")
         feedManager.addFeed(feed2)
 
+        feedManager.fetchAllFeeds()
         
         return true;
     }

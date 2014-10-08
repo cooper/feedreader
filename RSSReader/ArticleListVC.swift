@@ -33,7 +33,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("article") as? UITableViewCell {
             cell = cellMaybe
         }
-            
+
         // create a new cell.
         else {
             

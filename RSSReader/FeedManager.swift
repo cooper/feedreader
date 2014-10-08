@@ -24,5 +24,13 @@ class FeedManager {
         feeds.append(feed)
     }
     
+    func fetchAllFeeds() {
+        fetchAllFeedsThen(nil)
+    }
     
+    func fetchAllFeedsThen(then: (Void -> Void)?) {
+        for feed in feeds {
+            feed.fetchThen(then)
+        }
+    }
 }

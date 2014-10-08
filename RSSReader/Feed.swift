@@ -15,6 +15,7 @@ import Foundation
 class Feed: NSObject, Printable, NSXMLParserDelegate {
     let url: NSURL;
     var articles  = [Article]()
+    var loading = false
     
     enum ElementType {
         case None, FeedTitle, ItemTitle, Item, Link
@@ -47,10 +48,12 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     // fetch the feed data.
     // TODO: use separate operation queue
     func fetchThen (then: (Void -> Void)?) {
-        
+    
+        loading = true
         let request = NSURLRequest(URL: url)
         NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedManager.feedQueue) {
             (res: NSURLResponse!, data: NSData!, error: NSError?) -> Void in
+            self.loading = false
             
             // error.
             if error != nil {
@@ -72,7 +75,9 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             //let indexPath = NSIndexPath(forRow: 0, inSection: 0)
             //rss.feedVC.tableView.reloadRowsAtIndexPaths([ indexPath ], withRowAnimation: .Fade)
             //
-            rss.feedVC.tableView.reloadData()
+            NSOperationQueue.mainQueue().addOperationWithBlock {
+                rss.feedVC.tableView.reloadData()
+            }
             
             then?()
             return

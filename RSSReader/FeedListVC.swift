@@ -39,7 +39,8 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             
         }
         
-        cell.textLabel?.text = rss.feedManager.feeds[indexPath.row].title
+        let feed             = rss.feedManager.feeds[indexPath.row];
+        cell.textLabel?.text = feed.loading ? "Loading..." : feed.title
         return cell
     }
     
