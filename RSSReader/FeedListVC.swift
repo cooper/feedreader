@@ -10,9 +10,11 @@ import Foundation
 import UIKit
 
 class FeedListVC: UITableViewController, UITableViewDataSource {
+    private var _textField : UITextField?
     
     override func viewDidLoad() {
         self.navigationItem.title = "Feeds"
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -73,6 +75,26 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             self.navigationController?.pushViewController(artVC, animated: true)
         }
 
+    }
+    
+    func addButtonTapped(sender: AnyObject) {
+        let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
+        
+        alert.addTextFieldWithConfigurationHandler {
+            (textField: UITextField!) -> Void in
+            self._textField = textField
+            textField.placeholder = "URL"
+        }
+        
+        let action = UIAlertAction(title: "OK", style: .Default) {
+            (_: UIAlertAction!) -> Void in
+            let newFeed = Feed(urlString: self._textField!.text!)
+            rss.addNewFeed(newFeed)
+            return
+        }
+        
+        alert.addAction(action)
+        self.presentViewController(alert, animated: true, completion: nil)
     }
     
 }
