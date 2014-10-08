@@ -10,7 +10,8 @@ import Foundation
 
 class FeedManager {
     var feeds: [Feed];
-    
+    let feedQueue = NSOperationQueue()
+
     convenience init () {
         self.init(feeds: [])
     }

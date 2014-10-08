@@ -14,11 +14,10 @@ import Foundation
 //
 class Feed: NSObject, Printable, NSXMLParserDelegate {
     let url: NSURL;
-    //let feedQueue = NSOperationQueue()
     var articles  = [Article]()
     
     enum ElementType {
-        case None, FeedTitle, ItemTitle, Item
+        case None, FeedTitle, ItemTitle, Item, Link
     }
     
     // parser state.
@@ -46,24 +45,43 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     }
     
     // fetch the feed data.
-    func fetch () {
+    // TODO: use separate operation queue
+    func fetchThen (then: (Void -> Void)?) {
         
-        // create a parser with the feed URL and parse.
-        if let parser = NSXMLParser(contentsOfURL: url) {
+        let request = NSURLRequest(URL: url)
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedManager.feedQueue) {
+            (res: NSURLResponse!, data: NSData!, error: NSError?) -> Void in
+            
+            // error.
+            if error != nil {
+                println("There was an error: \(error!)")
+                return
+            }
+            
+            // FIXME: is it possible for this to fail?
+            let parser = NSXMLParser(data: data)!
             parser.delegate = self
+            
             println("Parsing the data")
             parser.parse()
             
-            let articleNames = articles.map({ $0.title ?? "Unknown title" })
-            println("Here are the articles: \(articleNames) for the feed named \(title)")
+            // I don't know how to determine the index from here
+            // because Swift does not have a method to find the
+            // index of an item in an array.
+            //
+            //let indexPath = NSIndexPath(forRow: 0, inSection: 0)
+            //rss.feedVC.tableView.reloadRowsAtIndexPaths([ indexPath ], withRowAnimation: .Fade)
+            //
+            rss.feedVC.tableView.reloadData()
             
-        }
-            
-        // error occured.
-        else {
-            println("NSXMLParser initialization error")
+            then?()
+            return
         }
         
+    }
+    
+    func fetch () {
+        fetchThen(nil)
     }
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
@@ -93,25 +111,26 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                 currentArticle = Article()
 
             case "link":
-                
+
                 // if there's no article, ignore this.
                 if currentArticle == nil {
                     break
                 }
                 
-                switch attributes["rel"] ?? "" {
-                    
-                    // alternate link.
-                    case "alternate":
-                        println("Alternate")
+                currentElement = .Link
+                currentArticle!.link = String()
+
+                switch attributes["rel"] ?? "alternate" {
                     
                     // edit link.
                     case "edit":
                         println("Edit")
                     
-                    // no rel
-                    case "":
-                        currentArticle?.link = attributes["href"]
+                    // the main link.
+                    case "alternate":
+                        if let href = attributes["href"] {
+                            currentArticle!.link! += href
+                        }
                     
                     // main link.
                     default:
@@ -140,6 +159,11 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             // the title of an article.
             case .ItemTitle:
                 currentArticle?.title? += string
+            
+            // in RSS, the link is within <link> tags (handled here).
+            // in Atom, the link is in the href attribute.
+            case .Link:
+                currentArticle?.link? += string
             
             // some other element...
             default:

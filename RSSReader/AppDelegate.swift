@@ -15,22 +15,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     let feedManager = FeedManager()
+    var navigationController: UINavigationController!
+    var feedVC: FeedListVC!
     
     func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         rss = self
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
-        let feedVC = FeedListVC(nibName: nil, bundle: nil)
+        feedVC = FeedListVC(nibName: nil, bundle: nil)
         
-        let navigationController = UINavigationController(rootViewController: feedVC)
+        navigationController = UINavigationController(rootViewController: feedVC)
         window!.rootViewController = navigationController
         window!.makeKeyAndVisible()
 
         // create two feeds.
-        let feed = Feed(urlString: "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml")
-        feedManager.addFeed(feed)
 
+        let feed1 = Feed(urlString: "http://feeds.feedburner.com/blogspot/MKuf?format=xml")
+        feedManager.addFeed(feed1)
         
-        let feed2 = Feed(urlString: "http://google.com")
+        let feed2 = Feed(urlString: "http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml")
         feedManager.addFeed(feed2)
 
         
@@ -38,14 +40,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        
-        println("Loaded? \(window!.rootViewController!.view)")
-        
-        let feedVC = window!.rootViewController as FeedListVC
-        let alert  = UIAlertController(title: "Add feed", message: "Enter the feed URL", preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
-        //feedVC.presentViewController(alert, animated: true, completion: nil)
-        
         return true
     }
 

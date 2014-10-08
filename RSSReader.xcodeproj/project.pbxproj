@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */; };
+		BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA627C419E4666A00273DC6 /* ArticleListVC.swift */; };
+		BCA627C819E46E1200273DC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCA627C719E46E1200273DC6 /* WebKit.framework */; };
 		BCC3475F19CB48E10058823E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3475E19CB48E10058823E /* AppDelegate.swift */; };
 		BCC3476819CB48E10058823E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BCC3476719CB48E10058823E /* Images.xcassets */; };
 		BCC3476B19CB48E10058823E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCC3476919CB48E10058823E /* LaunchScreen.xib */; };
@@ -30,6 +32,8 @@
 
 /* Begin PBXFileReference section */
 		BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListVC.swift; sourceTree = "<group>"; };
+		BCA627C419E4666A00273DC6 /* ArticleListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleListVC.swift; sourceTree = "<group>"; };
+		BCA627C719E46E1200273DC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		BCC3475919CB48E10058823E /* RSSReader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RSSReader.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BCC3475D19CB48E10058823E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BCC3475E19CB48E10058823E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -49,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCA627C819E46E1200273DC6 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,6 +67,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BCA627C619E4667400273DC6 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */,
+				BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */,
+				BCA627C419E4666A00273DC6 /* ArticleListVC.swift */,
+				BCC3476919CB48E10058823E /* LaunchScreen.xib */,
+			);
+			name = Interface;
+			sourceTree = "<group>";
+		};
 		BCC3475019CB48E10058823E = {
 			isa = PBXGroup;
 			children = (
@@ -84,10 +100,8 @@
 			isa = PBXGroup;
 			children = (
 				BCC3475E19CB48E10058823E /* AppDelegate.swift */,
-				BCD6591319DA4BEC00D6176A /* RSS */,
-				BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */,
-				BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */,
-				BCC3476919CB48E10058823E /* LaunchScreen.xib */,
+				BCD6591319DA4BEC00D6176A /* RSS objects */,
+				BCA627C619E4667400273DC6 /* Interface */,
 				BCC3476719CB48E10058823E /* Images.xcassets */,
 				BCC3475C19CB48E10058823E /* Supporting Files */,
 			);
@@ -97,6 +111,7 @@
 		BCC3475C19CB48E10058823E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BCA627C719E46E1200273DC6 /* WebKit.framework */,
 				BCC3475D19CB48E10058823E /* Info.plist */,
 			);
 			name = "Supporting Files";
@@ -119,14 +134,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		BCD6591319DA4BEC00D6176A /* RSS */ = {
+		BCD6591319DA4BEC00D6176A /* RSS objects */ = {
 			isa = PBXGroup;
 			children = (
 				BCC3478219CB4BEE0058823E /* FeedManager.swift */,
 				BCC3478019CB4A1D0058823E /* Feed.swift */,
 				BCDE3C0119DA39700018B268 /* Article.swift */,
 			);
-			name = RSS;
+			name = "RSS objects";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -233,6 +248,7 @@
 				BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */,
 				BCDE3C0219DA39700018B268 /* Article.swift in Sources */,
 				BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */,
+				BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */,
 				BCC3475F19CB48E10058823E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

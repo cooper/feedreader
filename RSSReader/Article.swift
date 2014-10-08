@@ -15,7 +15,9 @@ class Article {
     // without them set inside of the XML parsing stage.
     var title: String!
     var link:  String!
-    
+    var url: NSURL {
+        return NSURL(string: link)!
+    }
     init() {
     }
 }
