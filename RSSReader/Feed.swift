@@ -16,6 +16,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     let url: NSURL;
     var articles  = [Article]()
     var loading = false
+    weak var manager: FeedManager?
     
     enum ElementType {
         case None, FeedTitle, ItemTitle, Item, Link
@@ -45,13 +46,18 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         self.init(url: feedUrl)
     }
     
+    convenience init(storage: [String: AnyObject]) {
+        self.init(urlString: storage["urlString"]! as String)
+        _title = (storage["title"]! as String)
+    }
+    
     // fetch the feed data.
     // TODO: use separate operation queue
     func fetchThen (then: (Void -> Void)?) {
     
         loading = true
         let request = NSURLRequest(URL: url)
-        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedManager.feedQueue) {
+        NSURLConnection.sendAsynchronousRequest(request, queue: self.manager!.feedQueue) {
             (res: NSURLResponse!, data: NSData!, error: NSError?) -> Void in
             self.loading = false
             
@@ -113,7 +119,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             
             case "item", "entry":
                 currentElement = .Item
-                currentArticle = Article()
+                currentArticle = Article(feed: self)
 
             case "link":
 
@@ -123,7 +129,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                 }
                 
                 currentElement = .Link
-                currentArticle!.link = String()
+                currentArticle!.urlString = String()
 
                 switch attributes["rel"] ?? "alternate" {
                     
@@ -134,7 +140,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                     // the main link.
                     case "alternate":
                         if let href = attributes["href"] {
-                            currentArticle!.link! += href
+                            currentArticle!.urlString! += href
                         }
                     
                     // main link.
@@ -168,7 +174,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             // in RSS, the link is within <link> tags (handled here).
             // in Atom, the link is in the href attribute.
             case .Link:
-                currentArticle?.link? += string
+                currentArticle?.urlString? += string
             
             // some other element...
             default:
@@ -195,4 +201,15 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         currentElement = .None
     }
 
+    
+    func forStorage() -> NSDictionary {
+        // note: URLs can be stored in user defaults
+        /// but apparently not inside of a collection
+        return [
+            "title":        title,
+            "urlString":    url.absoluteString!,
+            "articles":     articles.map { $0.forStorage() }
+        ]
+    }
+    
 }

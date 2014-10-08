@@ -22,7 +22,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rss.feedManager.feeds.count
+        return rss.manager.feeds.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -41,14 +41,14 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             
         }
         
-        let feed             = rss.feedManager.feeds[indexPath.row];
+        let feed             = rss.manager.feeds[indexPath.row];
         cell.textLabel?.text = feed.loading ? "Loading..." : feed.title
         return cell
     }
     
     // user selected a feed.
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let feed = rss.feedManager.feeds[indexPath.row]
+        let feed = rss.manager.feeds[indexPath.row]
         
         // no articles; fetch them
         if feed.articles.count == 0 {
@@ -80,21 +80,32 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     func addButtonTapped(sender: AnyObject) {
         let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
         
+        // text field.
         alert.addTextFieldWithConfigurationHandler {
             (textField: UITextField!) -> Void in
             self._textField = textField
             textField.placeholder = "URL"
         }
         
+        // OK button.
         let action = UIAlertAction(title: "OK", style: .Default) {
             (_: UIAlertAction!) -> Void in
-            let newFeed = Feed(urlString: self._textField!.text!)
+            
+            // empty string?
+            let string = self._textField!.text!
+            if countElements(string) < 1 { return }
+            
+            // create and add the feed.
+            let newFeed = Feed(urlString: string)
             rss.addNewFeed(newFeed)
+            
             return
         }
-        
         alert.addAction(action)
+
+        // present it.
         self.presentViewController(alert, animated: true, completion: nil)
+        
     }
     
 }

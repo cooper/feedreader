@@ -14,10 +14,22 @@ class Article {
     // because an article object will ONLY be dealt with
     // without them set inside of the XML parsing stage.
     var title: String!
-    var link:  String!
+    var urlString: String!
+    weak var feed: Feed!
+    
     var url: NSURL {
-        return NSURL(string: link)!
+        return NSURL(string: urlString)!
     }
-    init() {
+    
+    init(feed: Feed) {
+        self.feed = feed
     }
+    
+    func forStorage() -> NSDictionary {
+        return [
+            "title":        title,
+            "urlString":    urlString
+        ]
+    }
+    
 }

@@ -14,28 +14,27 @@ var rss : AppDelegate!
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    let feedManager = FeedManager()
+    let defaults = NSUserDefaults.standardUserDefaults()
+    let manager = FeedManager()
     var navigationController: UINavigationController!
     var feedVC: FeedListVC!
-    
+
     func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         rss = self
+        
+        // set up interface.
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         feedVC = FeedListVC(nibName: nil, bundle: nil)
-        
         navigationController = UINavigationController(rootViewController: feedVC)
         window!.rootViewController = navigationController
         window!.makeKeyAndVisible()
 
-        // create two feeds.
-
-        let feed1 = Feed(urlString: "http://feeds.feedburner.com/blogspot/MKuf?format=xml")
-        feedManager.addFeed(feed1)
-        
-        let feed2 = Feed(urlString: "http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml")
-        feedManager.addFeed(feed2)
-
-        feedManager.fetchAllFeeds()
+        // load feeds from user defaults.
+        if let storedData = defaults.objectForKey("mainManager") as? NSData {
+            let storageDict = NSKeyedUnarchiver.unarchiveObjectWithData(storedData) as [String: AnyObject]
+            manager.addFeedsFromStorage(storageDict)
+        }
+        manager.fetchAllFeeds()
         
         return true;
     }
@@ -47,6 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+        defaults.synchronize()
     }
 
     func applicationDidEnterBackground(application: UIApplication) {
@@ -66,11 +66,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     
+    // add a new feed, reload the table, and fetch it.
+    // this will be used for both the add button as well as
+    // opening a feed from another application.
     func addNewFeed(feed: Feed) {
-        feedManager.addFeed(feed)
+        manager.addFeed(feed)
         feedVC.tableView.reloadData()
-        feed.fetch()
+        feed.fetchThen(saveChanges)
     }
 
+    // save changes in user defaults database.
+    // note that this does not actually update the database immediately.
+    func saveChanges() {
+        println("Saving changes")
+        let data = NSKeyedArchiver.archivedDataWithRootObject(manager.forStorage())
+        defaults.setObject(data, forKey: "mainManager")
+    }
+    
 }
 

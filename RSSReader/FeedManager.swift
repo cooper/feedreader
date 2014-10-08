@@ -9,18 +9,29 @@
 import Foundation
 
 class FeedManager {
-    var feeds: [Feed];
+    var feeds = [Feed]()
     let feedQueue = NSOperationQueue()
 
-    convenience init () {
-        self.init(feeds: [])
+    convenience init(feeds: [Feed]) {
+        self.init()
+        for feed in feeds {
+            self.addFeed(feed)
+        }
     }
     
-    init(feeds theFeeds: [Feed]) {
-        feeds = theFeeds;
+    func addFeedsFromStorage(storage: [String: AnyObject]) {
+        let feedsStored = storage["feeds"] as AnyObject! as [[String: AnyObject]]
+        println("feeds: \(feedsStored)")
+        
+        for feedInfo in feedsStored {
+            let feed = Feed(storage: feedInfo)
+            addFeed(feed)
+        }
+        
     }
     
     func addFeed(feed: Feed) {
+        feed.manager = self
         feeds.append(feed)
     }
     
@@ -33,4 +44,9 @@ class FeedManager {
             feed.fetchThen(then)
         }
     }
+    
+    func forStorage() -> NSDictionary {
+        return [ "feeds": feeds.map { $0.forStorage() } ]
+    }
+    
 }
