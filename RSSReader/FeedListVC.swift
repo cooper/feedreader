@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Mitchell Cooper. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 class FeedListVC: UITableViewController, UITableViewDataSource {
@@ -23,6 +22,27 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return rss.manager.feeds.count
+    }
+
+    // all rows are editable.
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        switch editingStyle {
+            
+            case .Delete:
+                rss.manager.feeds.removeAtIndex(indexPath.row)
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                rss.saveChanges()
+            
+            // case .Insert:
+            // case .None:
+            
+            default:
+                break
+        }
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

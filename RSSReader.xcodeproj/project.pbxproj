@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC59D0FA19E6D8C5008B6D30 /* FeedCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0F919E6D8C5008B6D30 /* FeedCollection.swift */; };
 		BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */; };
 		BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA627C419E4666A00273DC6 /* ArticleListVC.swift */; };
 		BCA627C819E46E1200273DC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCA627C719E46E1200273DC6 /* WebKit.framework */; };
@@ -31,6 +32,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC59D0F919E6D8C5008B6D30 /* FeedCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedCollection.swift; sourceTree = "<group>"; };
 		BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListVC.swift; sourceTree = "<group>"; };
 		BCA627C419E4666A00273DC6 /* ArticleListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleListVC.swift; sourceTree = "<group>"; };
 		BCA627C719E46E1200273DC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -71,6 +73,7 @@
 			isa = PBXGroup;
 			children = (
 				BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */,
+				BC59D0F919E6D8C5008B6D30 /* FeedCollection.swift */,
 				BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */,
 				BCA627C419E4666A00273DC6 /* ArticleListVC.swift */,
 				BCC3476919CB48E10058823E /* LaunchScreen.xib */,
@@ -250,6 +253,7 @@
 				BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */,
 				BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */,
 				BCC3475F19CB48E10058823E /* AppDelegate.swift in Sources */,
+				BC59D0FA19E6D8C5008B6D30 /* FeedCollection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
