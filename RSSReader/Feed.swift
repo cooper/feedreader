@@ -201,7 +201,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         currentElement = .None
     }
 
-    
+    // returns NSDictionary because it will be converted to such anyway.
     func forStorage() -> NSDictionary {
         // note: URLs can be stored in user defaults
         /// but apparently not inside of a collection

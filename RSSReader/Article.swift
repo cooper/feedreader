@@ -25,6 +25,7 @@ class Article {
         self.feed = feed
     }
     
+    // returns NSDictionary because it will be converted to such anyway.
     func forStorage() -> NSDictionary {
         return [
             "title":        title,

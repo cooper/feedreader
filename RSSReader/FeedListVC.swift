@@ -14,6 +14,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     override func viewDidLoad() {
         self.navigationItem.title = "Feeds"
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
+        self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -43,6 +44,14 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             default:
                 break
         }
+    }
+    
+    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        swap(&rss.manager.feeds[sourceIndexPath.row], &rss.manager.feeds[destinationIndexPath.row])
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
