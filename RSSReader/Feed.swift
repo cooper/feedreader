@@ -16,7 +16,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     let url: NSURL;
     var articles  = [Article]()
     var loading = false
-    weak var manager: FeedManager?
+    weak var currentGroup: FeedGroup?
     
     enum ElementType {
         case None, FeedTitle, ItemTitle, Item, Link
@@ -57,7 +57,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
         loading = true
         let request = NSURLRequest(URL: url)
-        NSURLConnection.sendAsynchronousRequest(request, queue: self.manager!.feedQueue) {
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
             (res: NSURLResponse!, data: NSData!, error: NSError?) -> Void in
             self.loading = false
             

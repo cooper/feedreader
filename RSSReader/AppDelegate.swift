@@ -13,9 +13,10 @@ var rss : AppDelegate!
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    let feedQueue = NSOperationQueue()
     var window: UIWindow?
     let defaults = NSUserDefaults.standardUserDefaults()
-    let manager = FeedManager()
+    let group = FeedGroup() // temporary
     var navigationController: UINavigationController!
     var feedVC: FeedListVC!
 
@@ -24,17 +25,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // set up interface.
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
-        feedVC = FeedListVC(nibName: nil, bundle: nil)
+        feedVC = FeedListVC(group: group)
         navigationController = UINavigationController(rootViewController: feedVC)
         window!.rootViewController = navigationController
         window!.makeKeyAndVisible()
 
         // load feeds from user defaults.
-        if let storedData = defaults.objectForKey("mainManager") as? NSData {
+        if let storedData = defaults.objectForKey("mainGroup") as? NSData {
             let storageDict = NSKeyedUnarchiver.unarchiveObjectWithData(storedData) as [String: AnyObject]
-            manager.addFeedsFromStorage(storageDict)
+            group.addFeedsFromStorage(storageDict)
         }
-        manager.fetchAllFeeds()
+        group.fetchAllFeeds()
         
         return true;
     }
@@ -70,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // this will be used for both the add button as well as
     // opening a feed from another application.
     func addNewFeed(feed: Feed) {
-        manager.addFeed(feed)
+        group.addFeed(feed)
         feedVC.tableView.reloadData()
         feed.fetchThen(saveChanges)
     }
@@ -79,8 +80,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // note that this does not actually update the database immediately.
     func saveChanges() {
         println("Saving changes")
-        let data = NSKeyedArchiver.archivedDataWithRootObject(manager.forStorage())
-        defaults.setObject(data, forKey: "mainManager")
+        let data = NSKeyedArchiver.archivedDataWithRootObject(group.forStorage())
+        defaults.setObject(data, forKey: "mainGroup")
     }
     
 }

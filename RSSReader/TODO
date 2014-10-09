@@ -1,0 +1,16 @@
+*   FeedListVC needs to not be dependent on all of the feeds in the group
+    but instead on a group of feeds (Feed collection).
+    This will allow grouping feeds by category, etc.
+    Never mind. I decided that a group is essentially a feed collection.
+    I can't 'think of a situation where it would be necessary to show
+    articles from two different feed groups together.
+
+*   ArticleListVC needs to not be dependent on all the articles in a feed
+    but instead on a group of articles (Article collection).
+    This will allow grouping of feeds and ordering all the articles
+    together by date (as per the requirements of the application).
+
+*   Hmm, what if you wanted to store a feed in more than one group...?
+    I will replace the group property with currentGroup or something
+    similar that represents the one being dealt with on the interface
+    currently.

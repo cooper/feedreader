@@ -1,5 +1,5 @@
 //
-//  FeedManager.swift
+//  FeedGroup.swift
 //  RSSReader
 //
 //  Created by Mitchell Cooper on 9/18/14.
@@ -8,15 +8,12 @@
 
 import Foundation
 
-class FeedManager {
+class FeedGroup {
     var feeds = [Feed]()
-    let feedQueue = NSOperationQueue()
 
     convenience init(feeds: [Feed]) {
         self.init()
-        for feed in feeds {
-            self.addFeed(feed)
-        }
+        self.feeds = feeds
     }
     
     func addFeedsFromStorage(storage: [String: AnyObject]) {
@@ -31,7 +28,6 @@ class FeedManager {
     }
     
     func addFeed(feed: Feed) {
-        feed.manager = self
         feeds.append(feed)
     }
     

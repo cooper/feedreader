@@ -10,6 +10,19 @@ import UIKit
 
 class FeedListVC: UITableViewController, UITableViewDataSource {
     private var _textField : UITextField?
+    let group: FeedGroup
+    
+    init(group _group: FeedGroup) {
+        group = _group
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        let dict = aDecoder.decodeObjectForKey("group") as [String: AnyObject]
+        group = FeedGroup()
+        group.addFeedsFromStorage(dict)
+        super.init(coder: aDecoder)
+    }
     
     override func viewDidLoad() {
         self.navigationItem.title = "Feeds"
@@ -22,7 +35,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return rss.manager.feeds.count
+        return group.feeds.count
     }
 
     // all rows are editable.
@@ -34,7 +47,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         switch editingStyle {
             
             case .Delete:
-                rss.manager.feeds.removeAtIndex(indexPath.row)
+                group.feeds.removeAtIndex(indexPath.row)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
                 rss.saveChanges()
             
@@ -51,7 +64,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        swap(&rss.manager.feeds[sourceIndexPath.row], &rss.manager.feeds[destinationIndexPath.row])
+        swap(&group.feeds[sourceIndexPath.row], &group.feeds[destinationIndexPath.row])
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -70,14 +83,14 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             
         }
         
-        let feed             = rss.manager.feeds[indexPath.row];
+        let feed             = group.feeds[indexPath.row];
         cell.textLabel?.text = feed.loading ? "Loading..." : feed.title
         return cell
     }
     
     // user selected a feed.
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let feed = rss.manager.feeds[indexPath.row]
+        let feed = group.feeds[indexPath.row]
         
         // no articles; fetch them
         if feed.articles.count == 0 {

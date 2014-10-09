@@ -1,5 +1,5 @@
 //
-//  FeedCollection.swift
+//  ArticleCollection.swift
 //  RSSReader
 //
 //  Created by Mitchell Cooper on 10/9/14.
