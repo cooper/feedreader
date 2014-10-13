@@ -13,10 +13,10 @@ var rss : AppDelegate!
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
-    var window: UIWindow?                                       // the UI window
-    var currentFeedVC: FeedListVC?                              // the current feed group VC
-    var navigationController: UINavigationController!           // the navigation controller
-    var defaultGroup: FeedGroup!                                // the default feed group
+    var window:                 UIWindow!                       // the UI window
+    var currentFeedVC:          FeedListVC?                     // the current feed group VC
+    var navigationController:   UINavigationController!         // the navigation controller
+    var defaultGroup:           FeedGroup!                      // the default feed group
     
     let feedQueue = NSOperationQueue()                          // queue for loading feeds
     let defaults  = NSUserDefaults.standardUserDefaults()       // standard user defaults
@@ -24,17 +24,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         rss = self
-
+        
         // load data from user defaults.
         fetchFromDefaults()
+        manager.fetchAllFeeds()
         defaultGroup = manager.groups.first
         
         // set up interface.
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
         currentFeedVC = FeedListVC(group: defaultGroup)
         navigationController = UINavigationController(rootViewController: currentFeedVC!)
-        window!.rootViewController = navigationController
-        window!.makeKeyAndVisible()
+        window.rootViewController = navigationController
+        window.makeKeyAndVisible()
         
         return true;
     }
@@ -67,7 +68,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func fetchFromDefaults() {
-        
+
         // feeds. if no data is there, use empty array.
         let feedData = defaults.objectForKey("feeds") as? NSData
         let feedDict = feedData != nil ? NSKeyedUnarchiver.unarchiveObjectWithData(feedData!) as [NSDictionary] : [];

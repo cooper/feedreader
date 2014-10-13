@@ -30,6 +30,8 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
     
+    // MARK:- Table view source
+    
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
     }
@@ -101,16 +103,13 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         pushArticleView(feed)
     }
     
+    // MARK:- Interface interaction
+    
     // push to the article list view for a feed.
     func pushArticleView(feed: Feed) {
-        
-        // ensure this is done in the main queue.
-        NSOperationQueue.mainQueue().addOperationWithBlock {
-            let artVC = ArticleListVC(nibName: nil, bundle: nil)
-            artVC.feed = feed
-            self.navigationController?.pushViewController(artVC, animated: true)
-        }
-
+        let artVC = ArticleListVC(nibName: nil, bundle: nil)
+        artVC.feed = feed
+        self.navigationController?.pushViewController(artVC, animated: true)
     }
     
     func addButtonTapped(sender: AnyObject) {

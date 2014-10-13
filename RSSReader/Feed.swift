@@ -13,24 +13,22 @@ import Foundation
 // an Objective-C protocol (NSXMLParserDelegate)
 //
 class Feed: NSObject, Printable, NSXMLParserDelegate {
-    let url: NSURL;
-    var articles = [Article]()
-    var loading = false
-    weak var currentGroup: FeedGroup?
     
-    enum ElementType {
-        case None, FeedTitle, ItemTitle, Item, Link
-    }
+    // MARK:- Feed details
     
-    // parser state.
-    var currentArticle : Article?
-    var currentElement = ElementType.None
+    let url: NSURL;                     // the URL of the feed
+    var articles = [Article]()          // articles in the feed
+    var loading  = false                // is it being fetched now?
+    var imageURL: String?               // URL of image representing of the feed
+    weak var currentGroup: FeedGroup?   // current feed group in user interface
     
     // title will default to the URL if not present.
     private var _title : String?
     var title: String {
         return _title ?? url.absoluteString!
     }
+    
+    // MARK:- Feed methods
     
     // printable description
     override var description: String {
@@ -71,7 +69,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
             (res: NSURLResponse!, data: NSData!, error: NSError?) -> Void in
             self.loading = false
-            
+
             // error.
             if error != nil {
                 println("There was an error: \(error!)")
@@ -82,16 +80,11 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             let parser = NSXMLParser(data: data)!
             parser.delegate = self
             
+            // initiate XML parser in this same queue.
             println("Parsing the data")
             parser.parse()
-            
-            // I don't know how to determine the index from here
-            // because Swift does not have a method to find the
-            // index of an item in an array.
-            //
-            //let indexPath = NSIndexPath(forRow: 0, inSection: 0)
-            //rss.feedVC.tableView.reloadRowsAtIndexPaths([ indexPath ], withRowAnimation: .Fade)
-            //
+
+            // in the main queue, reload the table, then call callback.
             NSOperationQueue.mainQueue().addOperationWithBlock {
                 rss.currentFeedVC?.tableView.reloadData()
                 then?()
@@ -99,12 +92,68 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             
             return
         }
-        
     }
     
+    // convenience for fetching with no callback.
     func fetch () {
         fetchThen(nil)
     }
+
+    // MARK:- XML parser state
+    
+    // this class represents a single specific XML element.
+    // its purpose is to create a hierarchy of elements.
+    class Element {
+        
+        // these are the element types recognized by this RSS/Atom parser.
+        enum Kind {
+            
+                                // Description                  RSS                 Atom
+                                // --------------               ------              -------
+                                //
+            case None           // No element (main scope)      n/a                 n/a
+            case Unknown        // Unknown element type         n/a                 n/a
+            
+            case FeedTitle      // title of the feed            <title>             <title>
+            case FeedImage      // image for feed               <image>             n/a
+            case FeedImageURL   // feed image URL               <url>               <icon> or <logo>
+            case Channel        // RSS feed channel             <channel>           <feed>
+            case Link           // URL for feed                 <link>              <link>
+            
+            case Item           // an item or article           <item>              <entry>
+            case ItemTitle      // title of an item             <title>             <title>
+            
+        }
+        
+        // type of the element and its parent, if any.
+        var type = Kind.None
+        var parent: Element?
+        
+        // initialize with a type.
+        convenience init(kind: Kind) {
+            self.init()
+            type = kind
+        }
+        
+    }
+    
+    // current article and element while parsing.
+    var currentArticle : Article?
+    var currentElement = Element()
+    
+    // open an element as a child of the current element.
+    func setCurrentElement(type: Element.Kind) {
+        let old = currentElement
+        currentElement = Element(kind: type)
+        currentElement.parent = old
+    }
+    
+    // close the current element.
+    func closeCurrentElement() {
+        currentElement = currentElement.parent ?? Element()
+    }
+    
+    // MARK:- XML parsing
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
         let attributes = attributeDict as [String: String]
@@ -112,34 +161,28 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         
         switch elementName {
             
-            case "title":
+            case "channel", "feed":
+                setCurrentElement(.Channel)
             
-                // if there's an article, this is its title.
-                if let article = currentArticle {
-                    article.title  = String()
-                    currentElement = .ItemTitle
-                }
-                    
-                // otherwise, this is the feed title.
-                // just to be safe, check whether the feed title already exists.
-                else if _title == nil {
-                    _title = String()
-                    currentElement = .FeedTitle
-                    println("Now in feed title")
-                }
+            // if there's an article, this is its title.
+            case "title" where currentElement.type == .Item && currentArticle != nil:
+                currentArticle!.title = String()
+                setCurrentElement(.ItemTitle)
             
+            // otherwise, this is the feed title.
+            case "title" where currentElement.type == .Channel:
+                _title = String()
+                setCurrentElement(.FeedTitle)
+                println("Now in feed title")
+            
+            // the start of an article.
             case "item", "entry":
-                currentElement = .Item
+                setCurrentElement(.Item)
                 currentArticle = Article(feed: self)
 
-            case "link":
-
-                // if there's no article, ignore this.
-                if currentArticle == nil {
-                    break
-                }
-                
-                currentElement = .Link
+            // link of an article.
+            case "link" where currentElement.type == .Item && currentArticle != nil:
+                setCurrentElement(.Link)
                 currentArticle!.urlString = String()
 
                 switch attributes["rel"] ?? "alternate" {
@@ -154,29 +197,37 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                             currentArticle!.urlString! += href
                         }
                     
-                    // main link.
+                    // some other.
                     default:
                         break
                     
                 }
             
-            default:
-                println("Unkown element \(elementName)")
+            // image of an article.
+            case "image" where currentElement.type == .Channel:
+                setCurrentElement(.FeedImage)
             
+            // feed image URL.
+            case "url" where currentElement.type == .FeedImage:
+                setCurrentElement(.FeedImageURL)
+                imageURL = String()
+            
+            // some other element that we do not handle.
+            default:
+                setCurrentElement(.Unknown)
+                println("Unkown element \(elementName)")
             
         }
 
     }
     
-    // found some characters that are not part of an element name.
+    // found some characters that are not part of an element.
     func parser(parser: NSXMLParser, foundCharacters string: String) {
-
-        switch currentElement {
+        switch currentElement.type {
             
             // the title of the feed.
             case .FeedTitle:
                 _title? += string
-                println("Dealing with the title: \(title)")
             
             // the title of an article.
             case .ItemTitle:
@@ -186,15 +237,18 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             // in Atom, the link is in the href attribute.
             case .Link:
                 currentArticle?.urlString? += string
+
+            // image for the feed.
+            case .FeedImageURL:
+                imageURL? += string
             
             // some other element...
             default:
                 break
             
         }
-        
     }
-    
+
     //func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String, qualifiedName qName: String) {
     func parser(parser: NSXMLParser, didEndElement elementName: String!, namespaceURI: String!, qualifiedName qName: String!) {
         
@@ -209,7 +263,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             
         }
         
-        currentElement = .None
+        closeCurrentElement()
     }
 
     // returns NSDictionary because it will be converted to such anyway.

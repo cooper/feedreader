@@ -23,7 +23,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return feed?.articles.count ?? 0
+        return feed.articles.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -95,7 +95,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         // feed is loading; show an indicator.
         if feed.loading {
             let indicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-            indicator.frame = CGRectMake(0, 0, 20, 20)
+            indicator.startAnimating()
             self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: indicator)
         }
             
