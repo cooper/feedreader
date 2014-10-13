@@ -84,14 +84,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func saveChanges() {
         println("Saving changes")
         
-//        // groups.
-//        let groupData = NSKeyedArchiver.archivedDataWithRootObject(manager.groupsForStorage)
-//        defaults.setObject(groupData, forKey: "groups")
-//        
-//        // feeds.
-//        let feedData = NSKeyedArchiver.archivedDataWithRootObject(manager.feedsForStorage)
-//        defaults.setObject(feedData, forKey: "feeds")
-//        
+        // groups.
+        let groupData = NSKeyedArchiver.archivedDataWithRootObject(manager.groupsForStorage)
+        defaults.setObject(groupData, forKey: "groups")
+        
+        // feeds.
+        let feedData = NSKeyedArchiver.archivedDataWithRootObject(manager.feedsForStorage)
+        defaults.setObject(feedData, forKey: "feeds")
+        
     }
     
 }

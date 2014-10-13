@@ -140,8 +140,9 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             
             // create and add the feed.
             let newFeed = Feed(urlString: string)
+            rss.manager.addFeed(newFeed)
             self.group.addFeed(newFeed)
-            
+        
             // fetch feed, update the table, save to database.
             newFeed.fetch()
             self.tableView.reloadData()
