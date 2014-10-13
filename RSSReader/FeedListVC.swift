@@ -65,6 +65,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         swap(&group.feeds[sourceIndexPath.row], &group.feeds[destinationIndexPath.row])
+        rss.saveChanges()
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -151,6 +152,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             return
         }
         alert.addAction(action)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
 
         // present it.
         self.presentViewController(alert, animated: true, completion: nil)

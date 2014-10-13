@@ -15,7 +15,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         println("view did load")
         println("table view: \(tableView)")
         println("view: \(view)")
-        self.navigationItem.title = feed.title
+        refresh()
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -63,6 +63,12 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         
     }
     
+    func refreshButtonTapped(sender: AnyObject) {
+        feed.loading = true
+        refresh()
+        feed.fetchThen(refresh)
+    }
+    
     func presentAction(sender: AnyObject) {
         
         // TODO: this uses a delegate to tell it what to do for each activity type.
@@ -81,6 +87,23 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         // if the user would not tap the button at all.
         let activityVC = UIActivityViewController(activityItems: activities, applicationActivities: nil)
         self.presentViewController(activityVC, animated: true, completion: nil)
+    }
+    
+    func refresh() {
+        self.navigationItem.title = feed.title
+
+        // feed is loading; show an indicator.
+        if feed.loading {
+            let indicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            indicator.frame = CGRectMake(0, 0, 20, 20)
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: indicator)
+        }
+            
+        // the feed is not loading; place the refresh button.
+        else {
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Refresh, target: self, action: "refreshButtonTapped:")
+        }
+
     }
     
 }

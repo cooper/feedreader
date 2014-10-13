@@ -49,6 +49,17 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     convenience init(storage: NSDictionary) {
         self.init(urlString: storage["urlString"]! as String)
         _title = (storage["title"]! as String)
+        
+        // add articles.
+        for articleDict in storage["articles"]! as [NSDictionary] {
+            let article = Article(feed: self, storage: articleDict)
+            addArticle(article)
+        }
+        
+    }
+    
+    func addArticle(article: Article) {
+        articles.append(article)
     }
     
     // fetch the feed data.
@@ -83,10 +94,9 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             //
             NSOperationQueue.mainQueue().addOperationWithBlock {
                 rss.currentFeedVC?.tableView.reloadData()
-                return
+                then?()
             }
             
-            then?()
             return
         }
         
@@ -191,7 +201,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         switch elementName {
             
             case "item", "entry":
-                articles.append(currentArticle!)
+                addArticle(currentArticle!)
                 currentArticle = nil
             
             default:

@@ -25,6 +25,12 @@ class Article {
         self.feed = feed
     }
     
+    convenience init(feed: Feed, storage: NSDictionary) {
+        self.init(feed: feed)
+        title = storage["title"]! as String
+        urlString = storage["urlString"]! as String
+    }
+    
     // returns NSDictionary because it will be converted to such anyway.
     var forStorage: NSDictionary {
         return [

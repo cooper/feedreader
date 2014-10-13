@@ -38,7 +38,6 @@ class FeedGroup {
         
         // add each feed from storage.
         let feedsStored = storage["feeds"] as [Int]
-        println("feeds: \(feedsStored)")
         for feedIndex in feedsStored {
             let feed = rss.manager.feeds[feedIndex]
             addFeed(feed)
