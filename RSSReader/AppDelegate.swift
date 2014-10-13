@@ -17,6 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var currentFeedVC: FeedListVC?                              // the current feed group VC
     var navigationController: UINavigationController!           // the navigation controller
     var defaultGroup: FeedGroup!                                // the default feed group
+    
     let feedQueue = NSOperationQueue()                          // queue for loading feeds
     let defaults  = NSUserDefaults.standardUserDefaults()       // standard user defaults
     let manager   = Manager()                                   // the single feed manager

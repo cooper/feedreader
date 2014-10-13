@@ -95,17 +95,10 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         
         // no articles; fetch them
         if feed.articles.count == 0 {
-            feed.fetchThen {
-                self.pushArticleView(feed)
-            }
+            feed.fetch()
         }
     
-        // already fetched.
-        else {
-            pushArticleView(feed)
-        }
-        
-        
+        pushArticleView(feed)
     }
     
     // push to the article list view for a feed.
