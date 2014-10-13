@@ -16,16 +16,16 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         group = _group
         super.init(nibName: nil, bundle: nil)
     }
-
+ 
     required init(coder aDecoder: NSCoder) {
-        let dict = aDecoder.decodeObjectForKey("group") as [String: AnyObject]
+        //let dict = aDecoder.decodeObjectForKey("group") as [String: AnyObject]
         group = FeedGroup()
-        group.addFeedsFromStorage(dict)
+        //group.addFeedsFromStorage(dict)
         super.init(coder: aDecoder)
     }
     
     override func viewDidLoad() {
-        self.navigationItem.title = "Feeds"
+        self.navigationItem.title = group.name
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
@@ -140,7 +140,12 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
             
             // create and add the feed.
             let newFeed = Feed(urlString: string)
-            rss.addNewFeed(newFeed)
+            self.group.addFeed(newFeed)
+            
+            // fetch feed, update the table, save to database.
+            newFeed.fetch()
+            self.tableView.reloadData()
+            rss.saveChanges()
             
             return
         }
@@ -150,5 +155,5 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         self.presentViewController(alert, animated: true, completion: nil)
         
     }
-    
+        
 }

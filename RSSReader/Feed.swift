@@ -14,7 +14,7 @@ import Foundation
 //
 class Feed: NSObject, Printable, NSXMLParserDelegate {
     let url: NSURL;
-    var articles  = [Article]()
+    var articles = [Article]()
     var loading = false
     weak var currentGroup: FeedGroup?
     
@@ -46,7 +46,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         self.init(url: feedUrl)
     }
     
-    convenience init(storage: [String: AnyObject]) {
+    convenience init(storage: NSDictionary) {
         self.init(urlString: storage["urlString"]! as String)
         _title = (storage["title"]! as String)
     }
@@ -82,7 +82,8 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             //rss.feedVC.tableView.reloadRowsAtIndexPaths([ indexPath ], withRowAnimation: .Fade)
             //
             NSOperationQueue.mainQueue().addOperationWithBlock {
-                rss.feedVC.tableView.reloadData()
+                rss.currentFeedVC?.tableView.reloadData()
+                return
             }
             
             then?()
@@ -202,13 +203,13 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     }
 
     // returns NSDictionary because it will be converted to such anyway.
-    func forStorage() -> NSDictionary {
+    var forStorage: NSDictionary {
         // note: URLs can be stored in user defaults
         /// but apparently not inside of a collection
         return [
             "title":        title,
             "urlString":    url.absoluteString!,
-            "articles":     articles.map { $0.forStorage() }
+            "articles":     articles.map { $0.forStorage }
         ]
     }
     

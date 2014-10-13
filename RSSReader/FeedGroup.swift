@@ -10,18 +10,37 @@ import Foundation
 
 class FeedGroup {
     var feeds = [Feed]()
+    var name  = "(Unnamed)"
+    var isDefault = false
 
     convenience init(feeds: [Feed]) {
         self.init()
         self.feeds = feeds
     }
     
-    func addFeedsFromStorage(storage: [String: AnyObject]) {
-        let feedsStored = storage["feeds"] as AnyObject! as [[String: AnyObject]]
-        println("feeds: \(feedsStored)")
+    convenience init(name: String) {
+        self.init()
+        self.name = name
+    }
+    
+    convenience init(storage: NSDictionary) {
+        self.init()
+        addFeedsFromStorage(storage)
+    }
+    
+    // add feeds from storage to the group.
+    // this should be called after the feeds themselves have been loaded from storage.
+    // this method only grabs the feeds from their indices and adds them to the group.
+    func addFeedsFromStorage(storage: NSDictionary) {
         
-        for feedInfo in feedsStored {
-            let feed = Feed(storage: feedInfo)
+        // group name.
+        name = storage["name"] as String
+        
+        // add each feed from storage.
+        let feedsStored = storage["feeds"] as [Int]
+        println("feeds: \(feedsStored)")
+        for feedIndex in feedsStored {
+            let feed = rss.manager.feeds[feedIndex]
             addFeed(feed)
         }
         
@@ -31,19 +50,18 @@ class FeedGroup {
         feeds.append(feed)
     }
     
-    func fetchAllFeeds() {
-        fetchAllFeedsThen(nil)
-    }
-    
-    func fetchAllFeedsThen(then: (Void -> Void)?) {
-        for feed in feeds {
-            feed.fetchThen(then)
-        }
-    }
-    
-    // returns NSDictionary because it will be converted to such anyway.
-    func forStorage() -> NSDictionary {
-        return [ "feeds": feeds.map { $0.forStorage() } ]
+    // NSDictionary representing the group.
+    // feeds are represented as an array of indices in the manager.
+    var forStorage: NSDictionary {
+        
+        // find the index of each feed in the manager.
+        // it should always be present, so it's unwrapped explicitly.
+        let feedIndices = feeds.map { find(rss.manager.feeds, $0)! }
+        
+        return [
+            "name":     name,
+            "feeds":    feedIndices
+        ]
     }
     
 }

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		BC59D0FC19E6FC14008B6D30 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = BC59D0FB19E6FC14008B6D30 /* TODO */; };
 		BC59D0FE19E6FDD4008B6D30 /* ArticleCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */; };
+		BC59D10019E7862A008B6D30 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FF19E7862A008B6D30 /* Manager.swift */; };
 		BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */; };
 		BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA627C419E4666A00273DC6 /* ArticleListVC.swift */; };
 		BCA627C819E46E1200273DC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCA627C719E46E1200273DC6 /* WebKit.framework */; };
@@ -35,6 +36,7 @@
 /* Begin PBXFileReference section */
 		BC59D0FB19E6FC14008B6D30 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollection.swift; sourceTree = "<group>"; };
+		BC59D0FF19E7862A008B6D30 /* Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
 		BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListVC.swift; sourceTree = "<group>"; };
 		BCA627C419E4666A00273DC6 /* ArticleListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleListVC.swift; sourceTree = "<group>"; };
 		BCA627C719E46E1200273DC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -142,6 +144,7 @@
 		BCD6591319DA4BEC00D6176A /* RSS objects */ = {
 			isa = PBXGroup;
 			children = (
+				BC59D0FF19E7862A008B6D30 /* Manager.swift */,
 				BCC3478219CB4BEE0058823E /* FeedGroup.swift */,
 				BCC3478019CB4A1D0058823E /* Feed.swift */,
 				BCDE3C0119DA39700018B268 /* Article.swift */,
@@ -257,6 +260,7 @@
 				BCDE3C0219DA39700018B268 /* Article.swift in Sources */,
 				BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */,
 				BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */,
+				BC59D10019E7862A008B6D30 /* Manager.swift in Sources */,
 				BCC3475F19CB48E10058823E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

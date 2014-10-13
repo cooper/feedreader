@@ -12,30 +12,28 @@ var rss : AppDelegate!
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-    let feedQueue = NSOperationQueue()
-    var window: UIWindow?
-    let defaults = NSUserDefaults.standardUserDefaults()
-    let group = FeedGroup() // temporary
-    var navigationController: UINavigationController!
-    var feedVC: FeedListVC!
-
+    
+    var window: UIWindow?                                       // the UI window
+    var currentFeedVC: FeedListVC?                              // the current feed group VC
+    var navigationController: UINavigationController!           // the navigation controller
+    var defaultGroup: FeedGroup!                                // the default feed group
+    let feedQueue = NSOperationQueue()                          // queue for loading feeds
+    let defaults  = NSUserDefaults.standardUserDefaults()       // standard user defaults
+    let manager   = Manager()                                   // the single feed manager
+    
     func application(application: UIApplication, willFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]?) -> Bool {
         rss = self
+
+        // load data from user defaults.
+        fetchFromDefaults()
+        defaultGroup = manager.groups.first
         
         // set up interface.
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
-        feedVC = FeedListVC(group: group)
-        navigationController = UINavigationController(rootViewController: feedVC)
+        currentFeedVC = FeedListVC(group: defaultGroup)
+        navigationController = UINavigationController(rootViewController: currentFeedVC!)
         window!.rootViewController = navigationController
         window!.makeKeyAndVisible()
-
-        // load feeds from user defaults.
-        if let storedData = defaults.objectForKey("mainGroup") as? NSData {
-            let storageDict = NSKeyedUnarchiver.unarchiveObjectWithData(storedData) as [String: AnyObject]
-            group.addFeedsFromStorage(storageDict)
-        }
-        group.fetchAllFeeds()
         
         return true;
     }
@@ -66,22 +64,34 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-    
-    // add a new feed, reload the table, and fetch it.
-    // this will be used for both the add button as well as
-    // opening a feed from another application.
-    func addNewFeed(feed: Feed) {
-        group.addFeed(feed)
-        feedVC.tableView.reloadData()
-        feed.fetchThen(saveChanges)
-    }
 
+    func fetchFromDefaults() {
+        
+        // feeds. if no data is there, use empty array.
+        let feedData = defaults.objectForKey("feeds") as? NSData
+        let feedDict = feedData != nil ? NSKeyedUnarchiver.unarchiveObjectWithData(feedData!) as [NSDictionary] : [];
+        manager.addFeedsFromStorage(feedDict)
+        
+        // groups. if no data is there, use array with default group.
+        let groupData = defaults.objectForKey("groups") as? NSData
+        let groupDict = groupData != nil ? NSKeyedUnarchiver.unarchiveObjectWithData(groupData!) as [NSDictionary] : [ FeedGroup(name: "Default").forStorage ]
+        manager.addGroupsFromStorage(groupDict)
+        
+    }
+    
     // save changes in user defaults database.
     // note that this does not actually update the database immediately.
     func saveChanges() {
         println("Saving changes")
-        let data = NSKeyedArchiver.archivedDataWithRootObject(group.forStorage())
-        defaults.setObject(data, forKey: "mainGroup")
+        
+//        // groups.
+//        let groupData = NSKeyedArchiver.archivedDataWithRootObject(manager.groupsForStorage)
+//        defaults.setObject(groupData, forKey: "groups")
+//        
+//        // feeds.
+//        let feedData = NSKeyedArchiver.archivedDataWithRootObject(manager.feedsForStorage)
+//        defaults.setObject(feedData, forKey: "feeds")
+//        
     }
     
 }

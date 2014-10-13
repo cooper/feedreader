@@ -26,7 +26,7 @@ class Article {
     }
     
     // returns NSDictionary because it will be converted to such anyway.
-    func forStorage() -> NSDictionary {
+    var forStorage: NSDictionary {
         return [
             "title":        title,
             "urlString":    urlString
