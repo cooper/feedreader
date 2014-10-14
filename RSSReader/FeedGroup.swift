@@ -8,9 +8,9 @@
 
 import Foundation
 
-class FeedGroup {
+class FeedGroup: ArticleCollection {
     var feeds = [Feed]()
-    var name  = "(Unnamed)"
+    var title = "(Unnamed)"
     var isDefault = false
 
     convenience init(feeds: [Feed]) {
@@ -18,9 +18,9 @@ class FeedGroup {
         self.feeds = feeds
     }
     
-    convenience init(name: String) {
+    convenience init(title: String) {
         self.init()
-        self.name = name
+        self.title = title
     }
     
     convenience init(storage: NSDictionary) {
@@ -34,7 +34,7 @@ class FeedGroup {
     func addFeedsFromStorage(storage: NSDictionary) {
         
         // group name.
-        name = storage["name"] as String
+        title = storage["title"] as String
         
         // add each feed from storage.
         let feedsStored = storage["feeds"] as [Int]
@@ -48,6 +48,43 @@ class FeedGroup {
     func addFeed(feed: Feed) {
         feeds.append(feed)
     }
+
+    // MARK:- Article collection
+    
+    // all articles in the group.
+    var articles: [Article] {
+        var all = [Article]()
+        for feed in feeds {
+            all += feed.articles
+        }
+        return all
+    }
+    
+    // feeds loading.
+    var loading: Bool {
+        
+        // set all as loading.
+        set {
+            for feed in feeds {
+                feed.loading = true
+            }
+        }
+        
+        // are any loading?
+        get {
+            return find(feeds.map { $0.loading }, true) != nil
+        }
+        
+    }
+    
+    // fetch all feeds.
+    func fetchThen(then: (Void -> Void)?) {
+        for feed in feeds {
+            feed.fetchThen(then)
+        }
+    }
+    
+    // MARK:- Storage
     
     // NSDictionary representing the group.
     // feeds are represented as an array of indices in the manager.
@@ -57,7 +94,7 @@ class FeedGroup {
         let feedIndices = feeds.map { $0.index }
         
         return [
-            "name":     name,
+            "title":    title,
             "feeds":    feedIndices
         ]
     }

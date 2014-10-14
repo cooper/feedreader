@@ -76,7 +76,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // groups. if no data is there, use array with default group.
         let groupData = defaults.objectForKey("groups") as? NSData
-        let groupDict = groupData != nil ? NSKeyedUnarchiver.unarchiveObjectWithData(groupData!) as [NSDictionary] : [ FeedGroup(name: "Default").forStorage ]
+        let groupDict = groupData != nil ? NSKeyedUnarchiver.unarchiveObjectWithData(groupData!) as [NSDictionary] : [ FeedGroup(title: "Default").forStorage ]
         manager.addGroupsFromStorage(groupDict)
         
     }

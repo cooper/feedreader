@@ -25,7 +25,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func viewDidLoad() {
-        self.navigationItem.title = group.name
+        self.navigationItem.title = group.title
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
@@ -109,7 +109,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     // push to the article list view for a feed.
     func pushArticleView(feed: Feed) {
         let artVC = ArticleListVC(nibName: nil, bundle: nil)
-        artVC.feed = feed
+        artVC.collection = feed
         self.navigationController?.pushViewController(artVC, animated: true)
     }
     

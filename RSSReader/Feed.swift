@@ -12,14 +12,14 @@ import Foundation
 // this class must inherit from NSObject because it complies with
 // an Objective-C protocol (NSXMLParserDelegate)
 //
-class Feed: NSObject, Printable, NSXMLParserDelegate {
+class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // MARK:- Feed details
     
     let url: NSURL;                         // the URL of the feed
     var articles = [Article]()              // articles in the feed
     var articlesById = [String: Article]()  // articles by identifier
-    var loading  = false                    // is it being fetched now?
+    var loading = false                     // is it being fetched now?
     var imageURL: String?                   // URL of image representing of the feed
     weak var currentGroup: FeedGroup?       // current feed group in user interface
     
@@ -305,8 +305,12 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
     // returns NSDictionary because it will be converted to such anyway.
     var forStorage: NSDictionary {
+        
         // note: URLs can be stored in user defaults
         /// but apparently not inside of a collection
+        
+        // articles are stored as an array, but when they are added back to
+        // the feed, they are stored in RAM by identifier as well.
         
         return [
             "title":        title,

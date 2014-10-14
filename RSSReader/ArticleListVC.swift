@@ -9,7 +9,7 @@
 import UIKit
 
 class ArticleListVC: UITableViewController, UITableViewDataSource {
-    var feed: Feed!
+    var collection: ArticleCollection!
 
     override func viewDidLoad() {
         refresh()
@@ -20,7 +20,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return feed.articles.count
+        return collection.articles.count
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -39,12 +39,12 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
             
         }
         
-        cell.textLabel?.text = feed.articles[indexPath.row].title
+        cell.textLabel?.text = collection.articles[indexPath.row].title
         return cell
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let article = feed.articles[indexPath.row]
+        let article = collection.articles[indexPath.row]
         
         // create a view controller with a webview.
         let vc = UIViewController(nibName: nil, bundle: nil)
@@ -61,9 +61,9 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     func refreshButtonTapped(sender: AnyObject) {
-        feed.loading = true
+        collection.loading = true
         refresh()
-        feed.fetchThen(refresh)
+        collection.fetchThen(refresh)
     }
     
     func presentAction(sender: AnyObject) {
@@ -87,10 +87,10 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     func refresh() {
-        self.navigationItem.title = feed.title
+        self.navigationItem.title = collection.title
 
         // feed is loading; show an indicator.
-        if feed.loading {
+        if collection.loading {
             let indicator = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
             indicator.startAnimating()
             self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: indicator)

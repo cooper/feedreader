@@ -55,6 +55,6 @@ class Article: Equatable {
 }
 
 // articles are equatable by identifier.
-func ==(lhs: Article, rhs: Article) -> Bool {
+func == (lhs: Article, rhs: Article) -> Bool {
     return lhs.identifier == rhs.identifier
 }

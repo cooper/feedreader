@@ -36,7 +36,7 @@ class Manager {
     func addGroupsFromStorage(groupDicts: [NSDictionary]) {
         for groupDict in groupDicts {
             let group = FeedGroup(storage: groupDict)
-            group.isDefault = group.name == "Default"
+            group.isDefault = group.title == "Default"
             addGroup(group)
         }
     }
