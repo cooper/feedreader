@@ -21,22 +21,35 @@ class Article {
         return NSURL(string: urlString)!
     }
     
+    var _identifier: String?
+    var identifier: String {
+        return _identifier ?? urlString
+    }
+    
     init(feed: Feed) {
         self.feed = feed
     }
     
     convenience init(feed: Feed, storage: NSDictionary) {
         self.init(feed: feed)
-        title = storage["title"]! as String
-        urlString = storage["urlString"]! as String
+        title       = storage["title"]!       as  String
+        urlString   = storage["urlString"]!   as  String
+        _identifier = storage["_identifier"]? as? String    // might not be present
     }
     
     // returns NSDictionary because it will be converted to such anyway.
     var forStorage: NSDictionary {
-        return [
+        var dict = [
             "title":        title,
             "urlString":    urlString
         ]
+        
+        // if an identifier exists (not using the URL), remember it.
+        if _identifier != nil {
+            dict["_identifier"] = _identifier
+        }
+    
+        return dict
     }
     
 }

@@ -16,11 +16,12 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
     // MARK:- Feed details
     
-    let url: NSURL;                     // the URL of the feed
-    var articles = [Article]()          // articles in the feed
-    var loading  = false                // is it being fetched now?
-    var imageURL: String?               // URL of image representing of the feed
-    weak var currentGroup: FeedGroup?   // current feed group in user interface
+    let url: NSURL;                         // the URL of the feed
+    var articles = [Article]()              // articles in the feed
+    var articlesById = [String: Article]()  // articles by identifier
+    var loading  = false                    // is it being fetched now?
+    var imageURL: String?                   // URL of image representing of the feed
+    weak var currentGroup: FeedGroup?       // current feed group in user interface
     
     // title will default to the URL if not present.
     private var _title : String?
@@ -61,8 +62,18 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         
     }
     
+    // add an article to the feed, remembering it by both index and identifier.
     func addArticle(article: Article) {
+        
+        // this one already exists.
+        if articlesById[article.identifier] != nil {
+            return
+        }
+        
+        // add it.
+        articlesById[article.identifier] = article
         articles.append(article)
+        
     }
     
     // fetch the feed data.
@@ -114,7 +125,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             
                                 // Description                  RSS                 Atom
                                 // --------------               ------              -------
-                                //
+
             case None           // No element (main scope)      n/a                 n/a
             case Unknown        // Unknown element type         n/a                 n/a
             
@@ -126,6 +137,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             
             case Item           // an item or article           <item>              <entry>
             case ItemTitle      // title of an item             <title>             <title>
+            case ItemId         // identifier of aitem          <guid>              <id>
             
         }
         
@@ -224,6 +236,11 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             case "url" where element.type == .FeedImage:
                 imageURL = String()
                 elementType = .FeedImageURL
+            
+            // identifier for an article or item.
+            case "guid", "id" where element.type == .Item:
+                currentArticle?._identifier = String()
+                elementType = .ItemId
 
             // some other element that we do not handle.
             default:
@@ -255,6 +272,10 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             case .FeedImageURL:
                 imageURL? += string
             
+            // item identifier.
+            case .ItemId:
+                currentArticle?._identifier? += string
+            
             // some other element...
             default:
                 break
@@ -266,6 +287,8 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     func parser(parser: NSXMLParser, didEndElement elementName: String!, namespaceURI: String!, qualifiedName qName: String!) {
         switch elementName {
             
+            // add the current article to the feed.
+            // addArticle() MUST be called after the identifier (if any) has been determined.
             case "item", "entry":
                 addArticle(currentArticle!)
                 currentArticle = nil
@@ -281,6 +304,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     var forStorage: NSDictionary {
         // note: URLs can be stored in user defaults
         /// but apparently not inside of a collection
+        
         return [
             "title":        title,
             "urlString":    url.absoluteString!,

@@ -1,4 +1,4 @@
-*   FeedListVC needs to not be dependent on all of the feeds in the group
+√   FeedListVC needs to not be dependent on all of the feeds in the group
     but instead on a group of feeds (Feed collection).
     This will allow grouping feeds by category, etc.
     Never mind. I decided that a group is essentially a feed collection.
@@ -10,7 +10,11 @@
     This will allow grouping of feeds and ordering all the articles
     together by date (as per the requirements of the application).
 
-*   Hmm, what if you wanted to store a feed in more than one group...?
+√   Hmm, what if you wanted to store a feed in more than one group...?
     I will replace the group property with currentGroup or something
     similar that represents the one being dealt with on the interface
     currently.
+
+*   Articles need to be stored in a dictionary rather than an array
+    and by their identifier strings, and they should be updated rather
+    than appended in storage if they exist already.
