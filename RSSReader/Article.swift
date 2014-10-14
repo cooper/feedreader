@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Article {
+class Article: Equatable {
     
     // these are implicitly unwrapped optionals
     // because an article object will ONLY be dealt with
@@ -52,4 +52,9 @@ class Article {
         return dict
     }
     
+}
+
+// articles are equatable by identifier.
+func ==(lhs: Article, rhs: Article) -> Bool {
+    return lhs.identifier == rhs.identifier
 }

@@ -65,14 +65,17 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     // add an article to the feed, remembering it by both index and identifier.
     func addArticle(article: Article) {
         
-        // this one already exists.
+        // this one already exists; update it.
         if articlesById[article.identifier] != nil {
-            return
+            articlesById[article.identifier] = article
+            articles[ find(articles, article)! ] = article
         }
         
-        // add it.
-        articlesById[article.identifier] = article
-        articles.append(article)
+        // add it for the first time.
+        else {
+            articlesById[article.identifier] = article
+            articles.append(article)
+        }
         
     }
     
@@ -299,7 +302,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         }
         closeElement()
     }
-
+    
     // returns NSDictionary because it will be converted to such anyway.
     var forStorage: NSDictionary {
         // note: URLs can be stored in user defaults
