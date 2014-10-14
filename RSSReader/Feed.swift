@@ -143,18 +143,28 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
     // current article and element while parsing.
     var currentArticle : Article?
-    var currentElement = Element()
+    var element = Element()
     
     // open an element as a child of the current element.
-    func setCurrentElement(type: Element.Kind) {
-        let old = currentElement
-        currentElement = Element(kind: type)
-        currentElement.parent = old
+    func adoptNewElement(type: Element.Kind) {
+        let old = element
+        element = Element(kind: type)
+        element.parent = old
     }
     
     // close the current element.
-    func closeCurrentElement() {
-        currentElement = currentElement.parent ?? Element()
+    func closeElement() {
+        element = element.parent ?? Element()
+    }
+    
+    // convenience for assigning/fetching.
+    var elementType: Element.Kind {
+        set {
+            adoptNewElement(newValue)
+        }
+        get {
+            return element.type
+        }
     }
     
     // MARK:- XML parsing
@@ -166,27 +176,27 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         switch elementName {
             
             case "channel", "feed":
-                setCurrentElement(.Channel)
+                elementType = .Channel
             
             // if there's an article, this is its title.
-            case "title" where currentElement.type == .Item && currentArticle != nil:
+            case "title" where element.type == .Item && currentArticle != nil:
                 currentArticle!.title = String()
-                setCurrentElement(.ItemTitle)
+                elementType = .ItemTitle
             
             // otherwise, this is the feed title.
-            case "title" where currentElement.type == .Channel:
+            case "title" where element.type == .Channel:
                 _title = String()
-                setCurrentElement(.FeedTitle)
+                elementType = .FeedTitle
             
             // the start of an article.
             case "item", "entry":
-                setCurrentElement(.Item)
                 currentArticle = Article(feed: self)
+                elementType = .Item
 
             // link of an article.
-            case "link" where currentElement.type == .Item && currentArticle != nil:
-                setCurrentElement(.Link)
+            case "link" where element.type == .Item && currentArticle != nil:
                 currentArticle!.urlString = String()
+                elementType = .Link
 
                 switch attributes["rel"] ?? "alternate" {
                     
@@ -207,18 +217,18 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                 }
             
             // image of an article.
-            case "image" where currentElement.type == .Channel:
-                setCurrentElement(.FeedImage)
+            case "image" where element.type == .Channel:
+                elementType = .FeedImage
             
             // feed image URL.
-            case "url" where currentElement.type == .FeedImage:
-                setCurrentElement(.FeedImageURL)
+            case "url" where element.type == .FeedImage:
                 imageURL = String()
-            
+                elementType = .FeedImageURL
+
             // some other element that we do not handle.
             default:
-                setCurrentElement(.Unknown)
                 //println("Unkown element \(elementName)")
+                elementType = .Unknown
             
         }
 
@@ -226,7 +236,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
     // found some characters that are not part of an element.
     func parser(parser: NSXMLParser, foundCharacters string: String) {
-        switch currentElement.type {
+        switch element.type {
             
             // the title of the feed.
             case .FeedTitle:
@@ -264,7 +274,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                 break
             
         }
-        closeCurrentElement()
+        closeElement()
     }
 
     // returns NSDictionary because it will be converted to such anyway.
