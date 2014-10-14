@@ -71,13 +71,12 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
         loading = true
         let request = NSURLRequest(URL: url)
-        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
-            (res: NSURLResponse!, data: NSData!, error: NSError?) -> Void in
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) { res, data, error in
             self.loading = false
 
             // error.
             if error != nil {
-                println("There was an error: \(error!)")
+                println("There was an error: \(error)")
                 return
             }
             

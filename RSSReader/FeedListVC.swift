@@ -117,15 +117,14 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
         
         // text field.
-        alert.addTextFieldWithConfigurationHandler {
-            (textField: UITextField!) -> Void in
+        alert.addTextFieldWithConfigurationHandler { textField in
             self._textField = textField
             textField.placeholder = "URL"
         }
         
         // OK button.
         let action = UIAlertAction(title: "OK", style: .Default) {
-            (_: UIAlertAction!) -> Void in
+            _ in
             
             // empty string?
             let string = self._textField!.text!
