@@ -12,9 +12,6 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     var feed: Feed!
 
     override func viewDidLoad() {
-        println("view did load")
-        println("table view: \(tableView)")
-        println("view: \(view)")
         refresh()
     }
     

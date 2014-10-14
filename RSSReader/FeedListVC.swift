@@ -49,10 +49,11 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         switch editingStyle {
             
             case .Delete:
-                group.feeds.removeAtIndex(indexPath.row)
+                let feed = group.feeds.removeAtIndex(indexPath.row)
+                rss.manager.removeFeed(feed)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
                 rss.saveChanges()
-            
+
             // case .Insert:
             // case .None:
             

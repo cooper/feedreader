@@ -51,6 +51,13 @@ class Manager {
         groups.append(group)
     }
     
+    // remove a feed.
+    // I don't really like this because it's not very efficient.
+    // an alternate solution is to cast to NSArry and then removeObject:.
+    func removeFeed(feed: Feed) {
+        feeds.removeAtIndex(feed.index)
+    }
+    
     // NSArray of NSDictionaries representing feeds.
     // these feeds are in the order by which they were added.
     var feedsForStorage: NSArray {

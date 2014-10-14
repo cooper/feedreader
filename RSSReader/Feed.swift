@@ -28,6 +28,11 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
         return _title ?? url.absoluteString!
     }
     
+    // index in feed manager.
+    var index: Int {
+        return find(rss.manager.feeds, self)!
+    }
+    
     // MARK:- Feed methods
     
     // printable description
@@ -81,7 +86,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             parser.delegate = self
             
             // initiate XML parser in this same queue.
-            println("Parsing the data")
+            //println("Parsing the data")
             parser.parse()
 
             // in the main queue, reload the table, then call callback.
@@ -157,7 +162,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
         let attributes = attributeDict as [String: String]
-        println("Starting element: \(elementName)")
+        //println("Starting element: \(elementName)")
         
         switch elementName {
             
@@ -173,7 +178,6 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             case "title" where currentElement.type == .Channel:
                 _title = String()
                 setCurrentElement(.FeedTitle)
-                println("Now in feed title")
             
             // the start of an article.
             case "item", "entry":
@@ -215,7 +219,7 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
             // some other element that we do not handle.
             default:
                 setCurrentElement(.Unknown)
-                println("Unkown element \(elementName)")
+                //println("Unkown element \(elementName)")
             
         }
 
@@ -251,7 +255,6 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
 
     //func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String, qualifiedName qName: String) {
     func parser(parser: NSXMLParser, didEndElement elementName: String!, namespaceURI: String!, qualifiedName qName: String!) {
-        
         switch elementName {
             
             case "item", "entry":
@@ -262,7 +265,6 @@ class Feed: NSObject, Printable, NSXMLParserDelegate {
                 break
             
         }
-        
         closeCurrentElement()
     }
 

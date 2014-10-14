@@ -54,8 +54,7 @@ class FeedGroup {
     var forStorage: NSDictionary {
         
         // find the index of each feed in the manager.
-        // it should always be present, so it's unwrapped explicitly.
-        let feedIndices = feeds.map { find(rss.manager.feeds, $0)! }
+        let feedIndices = feeds.map { $0.index }
         
         return [
             "name":     name,
