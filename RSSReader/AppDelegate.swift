@@ -98,3 +98,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
 }
 
+public func mainQueue(handler: (Void -> Void)) {
+    NSOperationQueue.mainQueue().addOperationWithBlock(handler)
+}

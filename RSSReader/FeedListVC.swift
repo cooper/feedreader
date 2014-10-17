@@ -8,7 +8,7 @@
 
 import UIKit
 
-class FeedListVC: UITableViewController, UITableViewDataSource {
+class FeedListVC: UITableViewController {
     private var _textField : UITextField?
     let group: FeedGroup
     
@@ -23,7 +23,7 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         //group.addFeedsFromStorage(dict)
         super.init(coder: aDecoder)
     }
-    
+
     override func viewDidLoad() {
         self.navigationItem.title = group.title
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
@@ -34,6 +34,10 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
+    }
+    
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 70
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -74,21 +78,20 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // first, try to dequeue a cell.
-        var cell: UITableViewCell
-        if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("feed") as? UITableViewCell {
+        var cell: FeedListCell
+        if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("feed") as? FeedListCell {
             cell = cellMaybe
         }
         
         // create a new cell.
         else {
-            
-            // this is failable, but I don't see how it could ever fail...?!
-            cell = UITableViewCell(style: .Default, reuseIdentifier: "feed")!
-            
+            let items = NSBundle.mainBundle().loadNibNamed("FeedListCell", owner: self, options: nil)
+            cell = items[0] as FeedListCell
         }
         
-        let feed             = group.feeds[indexPath.row];
-        cell.textLabel?.text = feed.loading ? "Loading..." : feed.title
+        let feed            = group.feeds[indexPath.row];
+        cell.label?.text     = feed.loading ? "Loading..." : feed.title
+        cell.iconView?.image = feed.image
         return cell
     }
     
@@ -123,13 +126,19 @@ class FeedListVC: UITableViewController, UITableViewDataSource {
         }
         
         // OK button.
-        let action = UIAlertAction(title: "OK", style: .Default) {
-            _ in
+        let action = UIAlertAction(title: "OK", style: .Default) { _ in
             
             // empty string?
             let string = self._textField!.text!
             self._textField = nil
             if countElements(string) < 1 { return }
+            
+            // does the feed exist already? reload it.
+            if let feed = rss.manager.feedFromURLString(string) {
+                feed.fetch()
+                self.tableView.reloadData()
+                return
+            }
             
             // create and add the feed.
             let newFeed = Feed(urlString: string)

@@ -58,6 +58,17 @@ class Manager {
         feeds.removeAtIndex(feed.index)
     }
     
+    // find a feed by its URL.
+    // consider: capitalization...
+    func feedFromURLString(urlString: String) -> Feed? {
+        for feed in feeds {
+            if urlString == feed.url.absoluteString! {
+                return feed
+            }
+        }
+        return nil
+    }
+    
     // NSArray of NSDictionaries representing feeds.
     // these feeds are in the order by which they were added.
     var feedsForStorage: NSArray {

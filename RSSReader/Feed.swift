@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Mitchell Cooper. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 //
 // this class must inherit from NSObject because it complies with
@@ -20,7 +20,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     var articles = [Article]()              // articles in the feed
     var articlesById = [String: Article]()  // articles by identifier
     var loading = false                     // is it being fetched now?
-    var imageURL: String?                   // URL of image representing of the feed
+    var imageURLString: String?             // URL of image representing of the feed
     weak var currentGroup: FeedGroup?       // current feed group in user interface
     
     // title will default to the URL if not present.
@@ -33,6 +33,9 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     var index: Int {
         return find(rss.manager.feeds, self)!
     }
+    
+    // image.
+    var image = UIImage(named: "news.png")
     
     // MARK:- Feed methods
     
@@ -87,10 +90,11 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         let request = NSURLRequest(URL: url)
         NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) { res, data, error in
             self.loading = false
-
+            println("Fetching \(self.title)")
+            
             // error.
             if error != nil {
-                println("There was an error: \(error)")
+                println("There was an error in \(self.title): \(error)")
                 return
             }
             
@@ -101,14 +105,43 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // initiate XML parser in this same queue.
             //println("Parsing the data")
             parser.parse()
+            rss.currentFeedVC?.tableView.reloadData()
 
+            // is there an image?
+            if let urlString = self.imageURLString {
+                let url = NSURL(string: urlString)!
+                self.downloadImage(url)
+            }
+            
             // in the main queue, reload the table, then call callback.
-            NSOperationQueue.mainQueue().addOperationWithBlock {
+            mainQueue {
                 rss.currentFeedVC?.tableView.reloadData()
                 then?()
             }
             
             return
+        }
+    }
+    
+    // download the image, then optionally reload a table view.
+    func downloadImage(imageURL: NSURL) {
+        let request = NSURLRequest(URL: imageURL)
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
+            res, data, error in
+
+            // error.
+            if error != nil {
+                println("There was an error loading the image: \(error)")
+                return
+            }
+            
+            // success.
+            mainQueue {
+                self.image = UIImage(data: data)
+                rss.currentFeedVC?.tableView.reloadData()
+                return
+            }
+            
         }
     }
     
@@ -237,7 +270,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // feed image URL.
             case "url" where element.type == .FeedImage:
-                imageURL = String()
+                imageURLString = String()
                 elementType = .FeedImageURL
             
             // identifier for an article or item.
@@ -273,7 +306,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
 
             // image for the feed.
             case .FeedImageURL:
-                imageURL? += string
+                imageURLString? += string
             
             // item identifier.
             case .ItemId:
