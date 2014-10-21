@@ -91,7 +91,9 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
         loading = true
         let request = NSURLRequest(URL: url)
-        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) { res, data, error in
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
+            res, data, error in
+            
             self.loading = false
             println("Fetching \(self.title)")
             
@@ -110,11 +112,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             parser.parse()
             rss.currentFeedVC?.tableView.reloadData()
 
-            // is there an image?
-            if let urlString = self.logoURLString {
-                let url = NSURL(string: urlString)!
-                self.downloadImages()
-            }
+            // download logo/icon.
+            self.downloadImages()
             
             // in the main queue, reload the table, then call callback.
             mainQueue {
@@ -126,50 +125,36 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         }
     }
     
+    func fetchImage(inout image: UIImage, urlString: String!) {
+        if urlString == nil { return }
+        
+        func handler(inout image: UIImage, res: NSURLResponse!, data: NSData!, error: NSError!) {
+            
+            // error.
+            if error != nil {
+                println("There was an error loading the image: \(error)")
+                return
+            }
+            image = UIImage(data: data)! // FIXME: can this fail?
+            
+            // success.
+            mainQueue {
+                rss.currentFeedVC?.tableView.reloadData()
+                return
+            }
+            
+        }
+        
+        let request = NSURLRequest(URL: NSURL(string: urlString)!)
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
+            res, data, error in handler(&image, res, data, error)
+        }
+    }
+    
     // download the image, then optionally reload a table view.
-    // FIXME:   don't repeat this.
-    //          I could do something like using an inout function probably.
     func downloadImages() {
-        if logoURLString != nil {
-            let request = NSURLRequest(URL: NSURL(string: logoURLString!)!)
-            NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
-                res, data, error in
-                
-                // error.
-                if error != nil {
-                    println("There was an error loading the image: \(error)")
-                    return
-                }
-                
-                // success.
-                mainQueue {
-                    self.logo = UIImage(data: data)! // FIXME: can this fail?
-                    rss.currentFeedVC?.tableView.reloadData()
-                    return
-                }
-                
-            }
-        }
-        if iconURLString != nil {
-            let request = NSURLRequest(URL: NSURL(string: iconURLString!)!)
-            NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
-                res, data, error in
-                
-                // error.
-                if error != nil {
-                    println("There was an error loading the image: \(error)")
-                    return
-                }
-                
-                // success.
-                mainQueue {
-                    self.icon = UIImage(data: data)! // FIXME: can this fail?
-                    rss.currentFeedVC?.tableView.reloadData()
-                    return
-                }
-                
-            }
-        }
+        fetchImage(&logo, urlString: logoURLString)
+        fetchImage(&icon, urlString: iconURLString)
     }
     
     // convenience for fetching with no callback.
