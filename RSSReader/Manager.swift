@@ -53,7 +53,7 @@ class Manager {
     
     // remove a feed.
     // I don't really like this because it's not very efficient.
-    // an alternate solution is to cast to NSArry and then removeObject:.
+    // an alternate solution is to cast to NSArray and then removeObject:.
     func removeFeed(feed: Feed) {
         feeds.removeAtIndex(feed.index)
     }

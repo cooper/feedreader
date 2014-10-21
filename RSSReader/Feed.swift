@@ -20,7 +20,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     var articles = [Article]()              // articles in the feed
     var articlesById = [String: Article]()  // articles by identifier
     var loading = false                     // is it being fetched now?
-    var imageURLString: String?             // URL of image representing of the feed
+    var iconURLString: String?              // URL of image representing of the feed
+    var logoURLString: String?              // URL of image representing of the feed
     weak var currentGroup: FeedGroup?       // current feed group in user interface
     
     // title will default to the URL if not present.
@@ -34,8 +35,10 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         return find(rss.manager.feeds, self)!
     }
     
-    // image.
-    var image = UIImage(named: "news.png")
+    // icon and logo.                       // for atom:
+    var logo = UIImage(named: "news.png")!   // ideally 1:1 ratio (small size)
+    var icon = UIImage(named: "news.png")!  // ideally 2:1 ratio (a bit bigger)
+                                            // for RSS: the two are equivalent.
     
     // MARK:- Feed methods
     
@@ -108,9 +111,9 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             rss.currentFeedVC?.tableView.reloadData()
 
             // is there an image?
-            if let urlString = self.imageURLString {
+            if let urlString = self.logoURLString {
                 let url = NSURL(string: urlString)!
-                self.downloadImage(url)
+                self.downloadImages()
             }
             
             // in the main queue, reload the table, then call callback.
@@ -124,24 +127,48 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     }
     
     // download the image, then optionally reload a table view.
-    func downloadImage(imageURL: NSURL) {
-        let request = NSURLRequest(URL: imageURL)
-        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
-            res, data, error in
-
-            // error.
-            if error != nil {
-                println("There was an error loading the image: \(error)")
-                return
+    // FIXME:   don't repeat this.
+    //          I could do something like using an inout function probably.
+    func downloadImages() {
+        if logoURLString != nil {
+            let request = NSURLRequest(URL: NSURL(string: logoURLString!)!)
+            NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
+                res, data, error in
+                
+                // error.
+                if error != nil {
+                    println("There was an error loading the image: \(error)")
+                    return
+                }
+                
+                // success.
+                mainQueue {
+                    self.logo = UIImage(data: data)! // FIXME: can this fail?
+                    rss.currentFeedVC?.tableView.reloadData()
+                    return
+                }
+                
             }
-            
-            // success.
-            mainQueue {
-                self.image = UIImage(data: data)
-                rss.currentFeedVC?.tableView.reloadData()
-                return
+        }
+        if iconURLString != nil {
+            let request = NSURLRequest(URL: NSURL(string: iconURLString!)!)
+            NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
+                res, data, error in
+                
+                // error.
+                if error != nil {
+                    println("There was an error loading the image: \(error)")
+                    return
+                }
+                
+                // success.
+                mainQueue {
+                    self.icon = UIImage(data: data)! // FIXME: can this fail?
+                    rss.currentFeedVC?.tableView.reloadData()
+                    return
+                }
+                
             }
-            
         }
     }
     
@@ -167,7 +194,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             case FeedTitle      // title of the feed            <title>             <title>
             case FeedImage      // image for feed               <image>             n/a
-            case FeedImageURL   // feed image URL               <url>               <icon> or <logo>
+            case FeedIconURL    // feed image URL               <url>               <icon>
+            case FeedLogoURL    // feed image URL               <url>               <logo>
             case Channel        // RSS feed channel             <channel>           <feed>
             case Link           // URL for feed                 <link>              <link>
             
@@ -219,7 +247,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
         let attributes = attributeDict as [String: String]
-        //println("Starting element: \(elementName)")
+        println("Starting element: \(elementName)")
         
         switch elementName {
             
@@ -264,14 +292,20 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                     
                 }
             
-            // image of an article.
+            // image of an article (RSS).
             case "image" where element.type == .Channel:
                 elementType = .FeedImage
             
-            // feed image URL.
-            case "url" where element.type == .FeedImage:
-                imageURLString = String()
-                elementType = .FeedImageURL
+            // feed logo URL (RSS = url, Atom = logo).
+            case "url" where element.type == .FeedImage,
+                "logo" where element.type == .Channel:
+                logoURLString = String()
+                elementType = .FeedLogoURL
+            
+            // feed icon URL (Atom only).
+            case "icon" where element.type == .Channel:
+                iconURLString = String()
+                elementType = .FeedIconURL
             
             // identifier for an article or item.
             case "guid", "id" where element.type == .Item:
@@ -305,8 +339,11 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                 currentArticle?.urlString? += string
 
             // image for the feed.
-            case .FeedImageURL:
-                imageURLString? += string
+            case .FeedIconURL:
+                iconURLString? += string
+            
+            case .FeedLogoURL:
+                logoURLString? += string
             
             // item identifier.
             case .ItemId:
@@ -322,6 +359,9 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     //func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String, qualifiedName qName: String) {
     func parser(parser: NSXMLParser, didEndElement elementName: String!, namespaceURI: String!, qualifiedName qName: String!) {
         switch elementName {
+            
+            case "channel", "feed":
+                iconURLString = iconURLString ?? logoURLString
             
             // add the current article to the feed.
             // addArticle() MUST be called after the identifier (if any) has been determined.

@@ -90,8 +90,10 @@ class FeedListVC: UITableViewController {
         }
         
         let feed            = group.feeds[indexPath.row];
-        cell.label?.text     = feed.loading ? "Loading..." : feed.title
-        cell.iconView?.image = feed.image
+        cell.label.text     = feed.loading ? "Loading..." : feed.title
+        cell.iconView.image = feed.logo
+        let w = (cell.iconView.frame.size.height * feed.logo.size.width) / feed.logo.size.height;
+        cell.iconView.frame.size.width = w < 120 ? w : 120
         return cell
     }
     
