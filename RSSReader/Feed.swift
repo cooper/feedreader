@@ -125,19 +125,26 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         }
     }
     
-    func fetchImage(inout image: UIImage, urlString: String!) {
+    func fetchImage(urlString: String!, handler: (UIImage) -> Void) {
+        
+        // no image specified.
         if urlString == nil { return }
         
-        func handler(inout image: UIImage, res: NSURLResponse!, data: NSData!, error: NSError!) {
+        // send the request.
+        let request = NSURLRequest(URL: NSURL(string: urlString)!)
+        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
+            res, data, error in
             
             // error.
             if error != nil {
                 println("There was an error loading the image: \(error)")
                 return
             }
-            image = UIImage(data: data)! // FIXME: can this fail?
             
-            // success.
+            // apparently working with UIImage is threadsafe now.
+            handler(UIImage(data: data)!)
+            
+            // reload the table in the main queue, if there is one visible.
             mainQueue {
                 rss.currentFeedVC?.tableView.reloadData()
                 return
@@ -145,16 +152,12 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
         }
         
-        let request = NSURLRequest(URL: NSURL(string: urlString)!)
-        NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
-            res, data, error in handler(&image, res, data, error)
-        }
     }
     
     // download the image, then optionally reload a table view.
     func downloadImages() {
-        fetchImage(&logo, urlString: logoURLString)
-        fetchImage(&icon, urlString: iconURLString)
+        fetchImage(logoURLString) { self.logo = $0 }
+        fetchImage(iconURLString) { self.icon = $0 }
     }
     
     // convenience for fetching with no callback.
