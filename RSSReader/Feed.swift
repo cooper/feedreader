@@ -8,6 +8,8 @@
 
 import UIKit
 
+let defaultImage = UIImage(named: "news.png")!
+
 //
 // this class must inherit from NSObject because it complies with
 // an Objective-C protocol (NSXMLParserDelegate)
@@ -15,19 +17,17 @@ import UIKit
 class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // MARK:- Feed details
+    //                                                                              Stored
     
-    let url: NSURL;                         // the URL of the feed
-    var articles = [Article]()              // articles in the feed
-    var articlesById = [String: Article]()  // articles by identifier
-    var loading = false                     // is it being fetched now?
-    var iconURLString: String?              // URL of image representing of the feed
-    var logoURLString: String?              // URL of image representing of the feed
-    weak var currentGroup: FeedGroup?       // current feed group in user interface
+    let url: NSURL;                         // the URL of the feed                     (S)
+    var articles = [Article]()              // articles in the feed                    (S)
+    var articlesById = [String: Article]()  // articles by identifier                  (S)
+    var channelTitle: String?               // actual title from the feed              (S)
+    var userSetTitle: String?               // nickname assigned by user               (S)
     
-    // title will default to the URL if not present.
-    private var _title : String?
+    // best title option available.
     var title: String {
-        return _title ?? url.absoluteString!
+        return userSetTitle ?? channelTitle ?? url.absoluteString!
     }
     
     // index in feed manager.
@@ -35,10 +35,17 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         return find(rss.manager.feeds, self)!
     }
     
+    var loading = false                     // is it being fetched now?
+    weak var currentGroup: FeedGroup?       // current feed group in user interface
+    
     // icon and logo.                       // for atom:
-    var logo = UIImage(named: "news.png")!   // ideally 1:1 ratio (small size)
-    var icon = UIImage(named: "news.png")!  // ideally 2:1 ratio (a bit bigger)
-                                            // for RSS: the two are equivalent.
+    var logo = defaultImage                 // ideally 1:1 ratio (small size)          (S)
+    var icon = defaultImage                 // ideally 2:1 ratio (a bit bigger)        (S)
+                                            // for RSS: the two are equivalent, size any.
+    var iconURLString: String?              // URL of image representing of the feed   (S)
+    var logoURLString: String?              // URL of image representing of the feed   (S)
+    private var shouldFetchIcon = false     // whether it's necessary to fetch icon
+    private var shouldFetchLogo = false     // whether it's necessary to fetch logo
     
     // MARK:- Feed methods
     
@@ -58,7 +65,24 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     convenience init(storage: NSDictionary) {
         self.init(urlString: storage["urlString"]! as String)
-        _title = (storage["title"]! as String)
+        
+        // these are all optional strings.
+        // I did this because I like inout.
+        func setMaybe(inout target: String?, name: String) {
+            target = storage[name] as? String
+        }
+        setMaybe(&userSetTitle,  "userSetTitle")
+        setMaybe(&channelTitle,  "channelTitle")
+        setMaybe(&iconURLString, "iconURLString")
+        setMaybe(&logoURLString, "logoURLString")
+        
+        // images.
+        if let iconData = storage["icon"] as? NSData {
+            icon = UIImage(data: iconData)!
+        }
+        if let logoData = storage["logo"] as? NSData {
+            logo = UIImage(data: logoData)!
+        }
         
         // add articles.
         for articleDict in storage["articles"]! as [NSDictionary] {
@@ -125,12 +149,12 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         }
     }
     
-    func fetchImage(urlString: String!, handler: (UIImage) -> Void) {
+    func fetchImage(urlString: String!, _ doIt: Bool, handler: (UIImage) -> Void) {
         
-        // no image specified.
-        if urlString == nil { return }
+        // no image URL specified.
+        if urlString == nil || !doIt { return }
         
-        // send the request.
+        // send the request from the feed queue.
         let request = NSURLRequest(URL: NSURL(string: urlString)!)
         NSURLConnection.sendAsynchronousRequest(request, queue: rss.feedQueue) {
             res, data, error in
@@ -156,8 +180,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // download the image, then optionally reload a table view.
     func downloadImages() {
-        fetchImage(logoURLString) { self.logo = $0 }
-        fetchImage(iconURLString) { self.icon = $0 }
+        fetchImage(logoURLString, shouldFetchLogo) { self.logo = $0 }
+        fetchImage(iconURLString, shouldFetchIcon) { self.icon = $0 }
     }
     
     // convenience for fetching with no callback.
@@ -244,12 +268,10 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // if there's an article, this is its title.
             case "title" where element.type == .Item && currentArticle != nil:
-                currentArticle!.title = String()
                 elementType = .ItemTitle
             
             // otherwise, this is the feed title.
             case "title" where element.type == .Channel:
-                _title = String()
                 elementType = .FeedTitle
             
             // the start of an article.
@@ -259,7 +281,6 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
 
             // link of an article.
             case "link" where element.type == .Item && currentArticle != nil:
-                currentArticle!.urlString = String()
                 elementType = .Link
 
                 switch attributes["rel"] ?? "alternate" {
@@ -269,10 +290,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                         println("Edit")
                     
                     // the main link.
-                    case "alternate":
-                        if let href = attributes["href"] {
-                            currentArticle!.urlString! += href
-                        }
+                    case "alternate" where attributes["href"] != nil:
+                        currentArticle!.urlString = attributes["href"]
                     
                     // some other.
                     default:
@@ -287,17 +306,14 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // feed logo URL (RSS = url, Atom = logo).
             case "url" where element.type == .FeedImage,
                 "logo" where element.type == .Channel:
-                logoURLString = String()
                 elementType = .FeedLogoURL
             
             // feed icon URL (Atom only).
             case "icon" where element.type == .Channel:
-                iconURLString = String()
                 elementType = .FeedIconURL
             
             // identifier for an article or item.
             case "guid", "id" where element.type == .Item:
-                currentArticle?._identifier = String()
                 elementType = .ItemId
 
             // some other element that we do not handle.
@@ -315,27 +331,30 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the title of the feed.
             case .FeedTitle:
-                _title? += string
+                channelTitle = string
             
             // the title of an article.
             case .ItemTitle:
-                currentArticle?.title? += string
+                currentArticle?.title = string
             
             // in RSS, the link is within <link> tags (handled here).
             // in Atom, the link is in the href attribute.
             case .Link:
-                currentArticle?.urlString? += string
+                currentArticle?.urlString = string
 
-            // image for the feed.
+            // icon for the feed.
             case .FeedIconURL:
-                iconURLString? += string
+                shouldFetchIcon = icon == defaultImage || string != iconURLString
+                iconURLString = string
             
+            // logo for the feed.
             case .FeedLogoURL:
-                logoURLString? += string
+                shouldFetchLogo = logo == defaultImage || string != logoURLString
+                logoURLString = string
             
             // item identifier.
             case .ItemId:
-                currentArticle?._identifier? += string
+                currentArticle?._identifier = string
             
             // some other element...
             default:
@@ -372,12 +391,29 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         
         // articles are stored as an array, but when they are added back to
         // the feed, they are stored in RAM by identifier as well.
-        
-        return [
-            "title":        title,
+        let dict: NSMutableDictionary = [
             "urlString":    url.absoluteString!,
             "articles":     articles.map { $0.forStorage }
         ]
+
+        let logoData: NSData? = logo == defaultImage ? nil : UIImagePNGRepresentation(logo)
+        let iconData: NSData? = icon == defaultImage ? nil : UIImagePNGRepresentation(icon)
+        
+        // these optionals should be left out if not present.
+        let optionals: [String : AnyObject?] = [
+            "channelTitle":     channelTitle,
+            "userSetTitle":     userSetTitle,
+            "iconURLString":    iconURLString,
+            "logoURLString":    logoURLString,
+            "logo":             logoData,
+            "icon":             iconData
+        ]
+        for (key, value) in optionals {
+            if value == nil { continue }
+            dict[key] = value!
+        }
+
+        return dict
     }
     
 }
