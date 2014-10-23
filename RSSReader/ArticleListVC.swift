@@ -23,23 +23,30 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         return collection.articles.count
     }
     
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 140
+    }
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-
+        
         // first, try to dequeue a cell.
-        var cell: UITableViewCell
-        if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("article") as? UITableViewCell {
+        var cell: ArticleListCell
+        if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("article") as? ArticleListCell {
             cell = cellMaybe
         }
-
+            
         // create a new cell.
         else {
-            
-            // this is failable, but I don't see how it could ever fail...?!
-            cell = UITableViewCell(style: .Default, reuseIdentifier: "article")!
-            
+            let items = NSBundle.mainBundle().loadNibNamed("ArticleListCell", owner: self, options: nil)
+            cell = items[0] as ArticleListCell
         }
         
-        cell.textLabel?.text = collection.articles[indexPath.row].title
+        let article         = collection.articles[indexPath.row]
+        cell.label.text     = article.title
+        cell.iconView.image = defaultImage
+        cell.descriptionView.text = article.summary
+        cell.iconView.sizeToFit()
+        cell.iconView.backgroundColor = UIColor.yellowColor()
         return cell
     }
     

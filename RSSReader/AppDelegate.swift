@@ -84,7 +84,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // save changes in user defaults database.
     // note that this does not actually update the database immediately.
     func saveChanges() {
-        println("Saving changes")
+        NSLog("Saving changes")
         
         // groups.
         let groupData = NSKeyedArchiver.archivedDataWithRootObject(manager.groupsForStorage)

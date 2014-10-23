@@ -119,11 +119,11 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             res, data, error in
             
             self.loading = false
-            println("Fetching \(self.title)")
+            NSLog("Fetching \(self.title)")
             
             // error.
             if error != nil {
-                println("There was an error in \(self.title): \(error)")
+                NSLog("There was an error in \(self.title): \(error)")
                 return
             }
             
@@ -132,7 +132,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             parser.delegate = self
             
             // initiate XML parser in this same queue.
-            //println("Parsing the data")
+            //NSLog("Parsing the data")
             parser.parse()
             rss.currentFeedVC?.tableView.reloadData()
 
@@ -161,7 +161,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // error.
             if error != nil {
-                println("There was an error loading the image: \(error)")
+                NSLog("There was an error loading the image: \(error)")
                 return
             }
             
@@ -213,7 +213,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             case Item           // an item or article           <item>              <entry>
             case ItemTitle      // title of an item             <title>             <title>
-            case ItemId         // identifier of aitem          <guid>              <id>
+            case ItemId         // identifier of item           <guid>              <id>
+            case ItemDesc       // description of item          <description>       <summary>
             
         }
         
@@ -259,7 +260,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
         let attributes = attributeDict as [String: String]
-        println("Starting element: \(elementName)")
+        NSLog("Starting element: \(elementName)")
         
         switch elementName {
             
@@ -287,7 +288,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                     
                     // edit link.
                     case "edit":
-                        println("Edit")
+                        NSLog("Edit")
                     
                     // the main link.
                     case "alternate" where attributes["href"] != nil:
@@ -315,10 +316,15 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // identifier for an article or item.
             case "guid", "id" where element.type == .Item:
                 elementType = .ItemId
-
+            
+            // item description.
+            case "description", "summary" where element.type == .Item:
+                elementType = .ItemDesc
+                currentArticle?.summary = ""
+            
             // some other element that we do not handle.
             default:
-                //println("Unkown element \(elementName)")
+                //NSLog("Unkown element \(elementName)")
                 elementType = .Unknown
             
         }
@@ -326,6 +332,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     }
     
     // found some characters that are not part of an element.
+    // note: it seems that this will be called several times with the data in pieces
+    // if the any of the characters are encoded with entities like &gt; etc.
     func parser(parser: NSXMLParser, foundCharacters string: String) {
         switch element.type {
             
@@ -345,16 +353,21 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // icon for the feed.
             case .FeedIconURL:
                 shouldFetchIcon = icon == defaultImage || string != iconURLString
-                iconURLString = string
+                iconURLString   = string
             
             // logo for the feed.
             case .FeedLogoURL:
                 shouldFetchLogo = logo == defaultImage || string != logoURLString
-                logoURLString = string
+                logoURLString   = string
             
             // item identifier.
             case .ItemId:
                 currentArticle?._identifier = string
+            
+            // item description.
+            case .ItemDesc:
+                currentArticle?.summary += string
+                NSLog("setting the summary to \(string)")
             
             // some other element...
             default:
@@ -396,8 +409,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             "articles":     articles.map { $0.forStorage }
         ]
 
-        let logoData: NSData? = logo == defaultImage ? nil : UIImagePNGRepresentation(logo)
-        let iconData: NSData? = icon == defaultImage ? nil : UIImagePNGRepresentation(icon)
+        let logoData = logo == defaultImage ? nil : logo.pngRepresentation
+        let iconData = icon == defaultImage ? nil : icon.pngRepresentation
         
         // these optionals should be left out if not present.
         let optionals: [String : AnyObject?] = [

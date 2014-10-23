@@ -15,6 +15,7 @@ class Article: Equatable {
     // without them set inside of the XML parsing stage.
     var title: String!
     var urlString: String!
+    var summary = ""
     weak var feed: Feed!
     
     var url: NSURL {
@@ -32,16 +33,18 @@ class Article: Equatable {
     
     convenience init(feed: Feed, storage: NSDictionary) {
         self.init(feed: feed)
-        title       = storage["title"]!       as  String
-        urlString   = storage["urlString"]!   as  String
-        _identifier = storage["_identifier"]? as? String    // might not be present
+        title       = storage["title"]       as  String
+        urlString   = storage["urlString"]   as  String
+        _identifier = storage["_identifier"] as? String    // might not be present
+        summary     = storage["summary"]     as? String ?? ""
     }
     
     // returns NSDictionary because it will be converted to such anyway.
     var forStorage: NSDictionary {
         var dict = [
             "title":        title,
-            "urlString":    urlString
+            "urlString":    urlString,
+            "summary":      summary
         ]
         
         // if an identifier exists (not using the URL), remember it.
