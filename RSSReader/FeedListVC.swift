@@ -36,12 +36,13 @@ class FeedListVC: UITableViewController {
         return 1
     }
     
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 70
-    }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return group.feeds.count
+    }
+    
+    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 70
     }
 
     // all rows are editable.
@@ -89,7 +90,7 @@ class FeedListVC: UITableViewController {
             cell = items[0] as FeedListCell
         }
         
-        let feed            = group.feeds[indexPath.row];
+        let feed            = group.feeds[indexPath.row]
         cell.label.text     = feed.loading ? "Loading..." : feed.title
         cell.iconView.image = feed.logo
         cell.iconView.sizeToFit()
@@ -113,7 +114,7 @@ class FeedListVC: UITableViewController {
     
     // push to the article list view for a feed.
     func pushArticleView(feed: Feed) {
-        let artVC = ArticleListVC(nibName: nil, bundle: nil)
+        let artVC = ArticleListVC(style: .Grouped)!
         artVC.collection = feed
         self.navigationController?.pushViewController(artVC, animated: true)
     }

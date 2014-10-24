@@ -27,6 +27,7 @@
 		BCE9485319F1D715002FC404 /* FeedListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE9485219F1D715002FC404 /* FeedListCell.swift */; };
 		BCE9485919F1D9AD002FC404 /* FeedListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE9485819F1D9AD002FC404 /* FeedListCell.xib */; };
 		BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */; };
+		BCFADACA19F9DD7A00F386C9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCFADAC919F9DD7A00F386C9 /* CoreData.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		BCE9485219F1D715002FC404 /* FeedListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListCell.swift; sourceTree = "<group>"; };
 		BCE9485819F1D9AD002FC404 /* FeedListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FeedListCell.xib; sourceTree = "<group>"; };
 		BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedAdderVC.swift; sourceTree = "<group>"; };
+		BCFADAC919F9DD7A00F386C9 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCFADACA19F9DD7A00F386C9 /* CoreData.framework in Frameworks */,
 				BCA627C819E46E1200273DC6 /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -152,6 +155,7 @@
 		BCC3475C19CB48E10058823E /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				BCFADAC919F9DD7A00F386C9 /* CoreData.framework */,
 				BCA627C719E46E1200273DC6 /* WebKit.framework */,
 				BCC3475D19CB48E10058823E /* Info.plist */,
 			);

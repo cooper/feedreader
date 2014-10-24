@@ -12,4 +12,5 @@ class ArticleListCell: UITableViewCell {
     @IBOutlet var iconView: UIImageView!
     @IBOutlet var label: UILabel!
     @IBOutlet var descriptionView: UITextView!
+    @IBOutlet var containerView: UIView!
 }

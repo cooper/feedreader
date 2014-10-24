@@ -8,6 +8,8 @@
 
 import Foundation
 
+let veryOldDate =  NSDate(timeIntervalSince1970: 0)
+
 class Article: Equatable {
     
     // these are implicitly unwrapped optionals
@@ -15,11 +17,16 @@ class Article: Equatable {
     // without them set inside of the XML parsing stage.
     var title: String!
     var urlString: String!
-    var summary = ""
+    var publishDate = veryOldDate
     weak var feed: Feed!
     
     var url: NSURL {
         return NSURL(string: urlString)!
+    }
+    
+    var rawSummary = ""
+    var summary: String {
+        return rawSummary
     }
     
     var _identifier: String?
@@ -36,15 +43,17 @@ class Article: Equatable {
         title       = storage["title"]       as  String
         urlString   = storage["urlString"]   as  String
         _identifier = storage["_identifier"] as? String    // might not be present
-        summary     = storage["summary"]     as? String ?? ""
+        rawSummary  = storage["rawSummary"]  as? String ?? ""
+        publishDate = storage["publishDate"] as? NSDate ?? veryOldDate
     }
-    
+
     // returns NSDictionary because it will be converted to such anyway.
     var forStorage: NSDictionary {
         var dict = [
             "title":        title,
             "urlString":    urlString,
-            "summary":      summary
+            "rawSummary":   rawSummary,
+            "publishDate":  publishDate
         ]
         
         // if an identifier exists (not using the URL), remember it.

@@ -17,7 +17,7 @@ extension UIImage {
 
 // as of October 23, 2014, class variables are not yet supported,
 // so this will have to be declared here for now instead.
-var _internetDateFormatter: NSDateFormatter?
+private var _internetDateFormatter: NSDateFormatter?
 
 // Extension for RSS/Atom date string parsing.
 extension NSDate {
@@ -28,7 +28,7 @@ extension NSDate {
     }
     
     // possible date formats.
-    struct Format {
+    private struct Format {
         static let rfc8FormatsWithCommas = [
             "EEE, d MMM yyyy HH:mm:ss zzz",
             "EEE, d MMM yyyy HH:mm zzz",

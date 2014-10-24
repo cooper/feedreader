@@ -10,21 +10,32 @@ import UIKit
 
 class ArticleListVC: UITableViewController, UITableViewDataSource {
     var collection: ArticleCollection!
-
+    var sortedArticles = [Article]()
+    
     override func viewDidLoad() {
+        tableView.separatorColor  = UIColor.clearColor()
+        tableView.backgroundColor = UIColor.whiteColor()
         refresh()
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        return sortedArticles.count//1
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return collection.articles.count
+        return 1//sortedArticles.count
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 140
+    }
+    
+    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 5
+    }
+    
+    override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 5
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -39,19 +50,31 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         else {
             let items = NSBundle.mainBundle().loadNibNamed("ArticleListCell", owner: self, options: nil)
             cell = items[0] as ArticleListCell
+            cell.containerView.layer.cornerRadius = 10
+            cell.containerView.layer.masksToBounds = true
         }
         
-        let article         = collection.articles[indexPath.row]
-        cell.label.text     = article.title
-        cell.iconView.image = defaultImage
+        let article               = sortedArticles[indexPath.section]//.row]
+        cell.label.text           = article.title
         cell.descriptionView.text = article.summary
-        cell.iconView.sizeToFit()
-        cell.iconView.backgroundColor = UIColor.yellowColor()
+        cell.iconView.image       = defaultImage
+        
+        
+        let widthRatio = cell.iconView.bounds.size.width / cell.iconView.image!.size.width
+        let heightRatio = cell.iconView.bounds.size.height / cell.iconView.image!.size.height
+        let scale = min(widthRatio, heightRatio)
+        let imageWidth = scale * cell.iconView.image!.size.width
+        let imageHeight = scale * cell.iconView.image!.size.height
+        cell.iconView.frame.size.width = imageWidth
+        NSLog("width: \(imageWidth), height: \(cell.iconView.bounds.size.height)")
+        
+        //cell.iconView.sizeToFit()
+        //cell.iconView.backgroundColor = UIColor.whiteColor()
         return cell
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let article = collection.articles[indexPath.row]
+        let article = sortedArticles[indexPath.row]
         
         // create a view controller with a webview.
         let vc = UIViewController(nibName: nil, bundle: nil)
@@ -94,7 +117,14 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     func refresh() {
+        if collection == nil { return }
         self.navigationItem.title = collection.title
+
+        // sort the articles.
+        sortedArticles = collection.articles.sorted {
+            art1, art2 in
+            art1.publishDate.laterDate(art2.publishDate) == art1.publishDate
+        }
 
         // feed is loading; show an indicator.
         if collection.loading {

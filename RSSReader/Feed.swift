@@ -94,24 +94,38 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // add an article to the feed, remembering it by both index and identifier.
     func addArticle(article: Article) {
-        
+        articlesById[article.identifier] = article
+
         // this one already exists; update it.
         if articlesById[article.identifier] != nil {
             articlesById[article.identifier] = article
-            articles[ find(articles, article)! ] = article
+            if let index = find(articles, article) {
+                articles[index] = article
+                return
+            }
         }
         
-        // add it for the first time.
-        else {
-            articlesById[article.identifier] = article
-            articles.append(article)
+        // FIXME: I'm not sure that this even works.
+        // add the article to the correct location by date.
+        for (i, art) in enumerate(articles) {
+            
+            // the article being added is more recent.
+            if art.publishDate.laterDate(article.publishDate) == article.publishDate {
+                articles.insert(article, atIndex: i)
+                return
+            }
+            
         }
+        
+        // may not have been added if it's the oldest one.
+        articles.append(article)
+
         
     }
     
     // fetch the feed data.
     // TODO: use separate operation queue
-    func fetchThen (then: (Void -> Void)?) {
+    func fetchThen(then: (Void -> Void)?) {
     
         loading = true
         let request = NSURLRequest(URL: url)
@@ -185,7 +199,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     }
     
     // convenience for fetching with no callback.
-    func fetch () {
+    func fetch() {
         fetchThen(nil)
     }
 
@@ -215,6 +229,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             case ItemTitle      // title of an item             <title>             <title>
             case ItemId         // identifier of item           <guid>              <id>
             case ItemDesc       // description of item          <description>       <summary>
+            case ItemPubDate    // date of item publish         <pubDate>           <published>
             
         }
         
@@ -231,7 +246,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     }
     
     // current article and element while parsing.
-    var currentArticle : Article?
+    var article : Article?
     var element = Element()
     
     // open an element as a child of the current element.
@@ -248,12 +263,12 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // convenience for assigning/fetching.
     var elementType: Element.Kind {
-        set {
-            adoptNewElement(newValue)
-        }
-        get {
-            return element.type
-        }
+        set { adoptNewElement(newValue) }
+        get { return element.type       }
+    }
+    
+    struct current {
+        static var itemPublishedDate = ""
     }
     
     // MARK:- XML parsing
@@ -268,7 +283,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                 elementType = .Channel
             
             // if there's an article, this is its title.
-            case "title" where element.type == .Item && currentArticle != nil:
+            case "title" where element.type == .Item && article != nil:
                 elementType = .ItemTitle
             
             // otherwise, this is the feed title.
@@ -277,11 +292,11 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the start of an article.
             case "item", "entry":
-                currentArticle = Article(feed: self)
+                article = Article(feed: self)
                 elementType = .Item
 
             // link of an article.
-            case "link" where element.type == .Item && currentArticle != nil:
+            case "link" where element.type == .Item && article != nil:
                 elementType = .Link
 
                 switch attributes["rel"] ?? "alternate" {
@@ -292,7 +307,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                     
                     // the main link.
                     case "alternate" where attributes["href"] != nil:
-                        currentArticle!.urlString = attributes["href"]
+                        article!.urlString = attributes["href"]
                     
                     // some other.
                     default:
@@ -307,20 +322,33 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // feed logo URL (RSS = url, Atom = logo).
             case "url" where element.type == .FeedImage,
                 "logo" where element.type == .Channel:
+                
                 elementType = .FeedLogoURL
             
             // feed icon URL (Atom only).
             case "icon" where element.type == .Channel:
+                
                 elementType = .FeedIconURL
             
             // identifier for an article or item.
-            case "guid", "id" where element.type == .Item:
+            case "guid" where element.type == .Item,
+                 "id"   where element.type == .Item:
+                
                 elementType = .ItemId
             
             // item description.
-            case "description", "summary" where element.type == .Item:
+            case "description" where element.type == .Item,
+                 "summary"     where element.type == .Item:
+                
                 elementType = .ItemDesc
-                currentArticle?.summary = ""
+                article?.rawSummary = ""
+            
+            // item publish date.
+            case "pubDate"   where element.type == .Item,
+                 "published" where element.type == .Item:
+                
+                elementType = .ItemPubDate
+                current.itemPublishedDate = ""
             
             // some other element that we do not handle.
             default:
@@ -343,12 +371,12 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the title of an article.
             case .ItemTitle:
-                currentArticle?.title = string
+                article?.title = string
             
             // in RSS, the link is within <link> tags (handled here).
             // in Atom, the link is in the href attribute.
             case .Link:
-                currentArticle?.urlString = string
+                article?.urlString = string
 
             // icon for the feed.
             case .FeedIconURL:
@@ -362,15 +390,19 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // item identifier.
             case .ItemId:
-                currentArticle?._identifier = string
+                article?._identifier = string
             
             // item description.
             case .ItemDesc:
-                currentArticle?.summary += string
+                article?.rawSummary += string
                 NSLog("setting the summary to \(string)")
+            
+            case .ItemPubDate:
+                current.itemPublishedDate += string
             
             // some other element...
             default:
+                
                 break
             
         }
@@ -378,16 +410,21 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
 
     //func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String, qualifiedName qName: String) {
     func parser(parser: NSXMLParser, didEndElement elementName: String!, namespaceURI: String!, qualifiedName qName: String!) {
-        switch elementName {
+        switch element.type {
             
-            case "channel", "feed":
+            case .Channel:
                 iconURLString = iconURLString ?? logoURLString
             
             // add the current article to the feed.
             // addArticle() MUST be called after the identifier (if any) has been determined.
-            case "item", "entry":
-                addArticle(currentArticle!)
-                currentArticle = nil
+            case .Item:
+                addArticle(article!)
+                article = nil
+            
+            case .ItemPubDate:
+                article!.publishDate =
+                    NSDate.fromInternetString(current.itemPublishedDate) ??
+                    article!.publishDate
             
             default:
                 break
