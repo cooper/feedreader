@@ -26,14 +26,10 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     var userSetTitle: String?               // nickname assigned by user               (S)
     
     // best title option available.
-    var title: String {
-        return userSetTitle ?? channelTitle ?? url.absoluteString!
-    }
+    var title: String { return userSetTitle ?? channelTitle ?? url.absoluteString! }
     
     // index in feed manager.
-    var index: Int {
-        return find(rss.manager.feeds, self)!
-    }
+    var index: Int { return find(rss.manager.feeds, self)! }
     
     var loading = false                     // is it being fetched now?
     weak var currentGroup: FeedGroup?       // current feed group in user interface
@@ -371,7 +367,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the title of an article.
             case .ItemTitle:
-                article?.title = string
+                article?.title = string.withoutHTMLTags
             
             // in RSS, the link is within <link> tags (handled here).
             // in Atom, the link is in the href attribute.

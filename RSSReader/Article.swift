@@ -24,15 +24,21 @@ class Article: Equatable {
         return NSURL(string: urlString)!
     }
     
-    var rawSummary = ""
-    var summary: String {
-        return rawSummary
+    // summary. caches without HTML tags.
+    private var _rawSummary = ""
+    var rawSummary: String {
+        get {
+            return _rawSummary
+        }
+        set {
+            _rawSummary = newValue
+            summary = newValue.withoutHTMLTags
+        }
     }
+    var summary = ""
     
     var _identifier: String?
-    var identifier: String {
-        return _identifier ?? urlString
-    }
+    var identifier: String { return _identifier ?? urlString }
     
     init(feed: Feed) {
         self.feed = feed

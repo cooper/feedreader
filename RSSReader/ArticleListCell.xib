@@ -29,24 +29,24 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AHU-eI-KQ6">
-                                        <rect key="frame" x="0.0" y="38" width="76" height="76"/>
+                                        <rect key="frame" x="0.0" y="30" width="76" height="84"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="76" id="mC9-Jn-faS"/>
                                         </constraints>
                                     </imageView>
                                     <textView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" delaysContentTouches="NO" canCancelContentTouches="NO" bouncesZoom="NO" editable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jiN-AQ-c0J">
-                                        <rect key="frame" x="84" y="38" width="210" height="76"/>
+                                        <rect key="frame" x="81" y="30" width="213" height="84"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                     </textView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="AHU-eI-KQ6" firstAttribute="top" secondItem="SOs-PZ-CVW" secondAttribute="bottom" constant="8" id="2ss-Qr-PCR"/>
+                                    <constraint firstItem="AHU-eI-KQ6" firstAttribute="top" secondItem="SOs-PZ-CVW" secondAttribute="bottom" id="2ss-Qr-PCR"/>
                                     <constraint firstItem="SOs-PZ-CVW" firstAttribute="leading" secondItem="nMZ-q0-rt2" secondAttribute="leading" id="47e-dD-yzK"/>
                                     <constraint firstItem="AHU-eI-KQ6" firstAttribute="leading" secondItem="nMZ-q0-rt2" secondAttribute="leading" id="4HX-7n-Qac"/>
                                     <constraint firstAttribute="bottom" secondItem="jiN-AQ-c0J" secondAttribute="bottom" id="6rp-FC-FtG"/>
-                                    <constraint firstItem="jiN-AQ-c0J" firstAttribute="leading" secondItem="AHU-eI-KQ6" secondAttribute="trailing" constant="8" id="JpP-Oc-0vM"/>
+                                    <constraint firstItem="jiN-AQ-c0J" firstAttribute="leading" secondItem="AHU-eI-KQ6" secondAttribute="trailing" constant="5" id="JpP-Oc-0vM"/>
                                     <constraint firstItem="jiN-AQ-c0J" firstAttribute="height" secondItem="AHU-eI-KQ6" secondAttribute="height" id="V2d-IL-asl"/>
                                     <constraint firstAttribute="trailing" secondItem="SOs-PZ-CVW" secondAttribute="trailing" id="bcd-yV-6Tr"/>
                                     <constraint firstItem="SOs-PZ-CVW" firstAttribute="top" secondItem="nMZ-q0-rt2" secondAttribute="top" id="fxB-Lq-Wzk"/>

@@ -35,7 +35,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 5
+        return 1
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -52,6 +52,9 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
             cell = items[0] as ArticleListCell
             cell.containerView.layer.cornerRadius = 10
             cell.containerView.layer.masksToBounds = true
+            let backgroundView = UIView()
+            backgroundView.backgroundColor = cell.containerView.backgroundColor
+            cell.selectedBackgroundView = backgroundView
         }
         
         let article               = sortedArticles[indexPath.section]//.row]

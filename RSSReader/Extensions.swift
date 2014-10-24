@@ -103,3 +103,17 @@ extension NSDate {
     }
     
 }
+
+extension String {
+    var withoutHTMLTags: String {
+        var s = self as NSString
+        var r: NSRange!
+        do {
+            r = s.rangeOfString("<[^>]+>", options: .RegularExpressionSearch)
+            if r == nil || r.location == NSNotFound {
+                return s
+            }
+            s = s.stringByReplacingCharactersInRange(r!, withString: "")
+        } while true
+    }
+}
