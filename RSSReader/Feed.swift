@@ -138,7 +138,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             }
             
             // FIXME: is it possible for this to fail?
-            let parser = NSXMLParser(data: data)!
+            let parser = NSXMLParser(data: data)
             parser.delegate = self
             
             // initiate XML parser in this same queue.
@@ -176,7 +176,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             }
             
             // apparently working with UIImage is threadsafe now.
-            handler(UIImage(data: data)!)
+            handler(UIImage(data: data)!.withoutWhiteBackground)
             
             // reload the table in the main queue, if there is one visible.
             mainQueue {
@@ -281,6 +281,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // if there's an article, this is its title.
             case "title" where element.type == .Item && article != nil:
                 elementType = .ItemTitle
+                article?.title = ""
             
             // otherwise, this is the feed title.
             case "title" where element.type == .Channel:
@@ -367,7 +368,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the title of an article.
             case .ItemTitle:
-                article?.title = string.withoutHTMLTags
+                article?.title? += string
+                NSLog("adding to title: \(string)")
             
             // in RSS, the link is within <link> tags (handled here).
             // in Atom, the link is in the href attribute.
@@ -391,7 +393,6 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // item description.
             case .ItemDesc:
                 article?.rawSummary += string
-                NSLog("setting the summary to \(string)")
             
             case .ItemPubDate:
                 current.itemPublishedDate += string

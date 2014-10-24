@@ -114,7 +114,7 @@ class FeedListVC: UITableViewController {
     
     // push to the article list view for a feed.
     func pushArticleView(feed: Feed) {
-        let artVC = ArticleListVC(style: .Grouped)!
+        let artVC = ArticleListVC(style: .Grouped)
         artVC.collection = feed
         self.navigationController?.pushViewController(artVC, animated: true)
     }

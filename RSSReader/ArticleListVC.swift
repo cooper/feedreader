@@ -61,7 +61,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         cell.label.text           = article.title
         cell.descriptionView.text = article.summary
         cell.iconView.image       = defaultImage
-        
+        cell.publisherView.image  = article.feed.logo.whiteImage()
         
         let widthRatio = cell.iconView.bounds.size.width / cell.iconView.image!.size.width
         let heightRatio = cell.iconView.bounds.size.height / cell.iconView.image!.size.height
@@ -77,7 +77,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let article = sortedArticles[indexPath.row]
+        let article = sortedArticles[indexPath.section]
         
         // create a view controller with a webview.
         let vc = UIViewController(nibName: nil, bundle: nil)
