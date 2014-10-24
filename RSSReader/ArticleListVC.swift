@@ -52,6 +52,8 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
             cell = items[0] as ArticleListCell
             cell.containerView.layer.cornerRadius = 10
             cell.containerView.layer.masksToBounds = true
+            //cell.containerView.layer.rasterizationScale = 3
+            //cell.containerView.layer.shouldRasterize = true
             let backgroundView = UIView()
             backgroundView.backgroundColor = cell.containerView.backgroundColor
             cell.selectedBackgroundView = backgroundView

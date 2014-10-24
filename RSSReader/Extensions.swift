@@ -98,13 +98,13 @@ extension NSDate {
 }
 
 extension String {
-    var withoutHTMLTags: String {
+    var withoutHTMLTagsAndNewlines: String {
         var s = self as NSString
         var r: NSRange!
         do {
             r = s.rangeOfString("<[^>]+>", options: .RegularExpressionSearch)
             if r == nil || r.location == NSNotFound {
-                return s
+                return s.stringByReplacingOccurrencesOfString("\n", withString: "")
             }
             s = s.stringByReplacingCharactersInRange(r!, withString: "")
         } while true

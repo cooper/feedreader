@@ -32,7 +32,7 @@ class Article: Equatable {
         }
         set {
             _rawSummary = newValue
-            summary = newValue.withoutHTMLTags
+            summary = newValue.withoutHTMLTagsAndNewlines
         }
     }
     var summary = ""

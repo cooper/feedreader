@@ -11,7 +11,7 @@ import UIKit
 class ArticleListCell: UITableViewCell {
     @IBOutlet var iconView: UIImageView!
     @IBOutlet var label: UILabel!
-    @IBOutlet var descriptionView: UITextView!
+    @IBOutlet var descriptionView: UILabel!
     @IBOutlet var containerView: UIView!
     @IBOutlet var publisherView: UIImageView!
 }

@@ -33,12 +33,12 @@ class FeedListVC: UITableViewController {
     // MARK:- Table view source
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        return 2
     }
     
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return group.feeds.count
+        return section == 0 ? 1 : group.feeds.count
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -68,15 +68,23 @@ class FeedListVC: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
+        return indexPath.section != 0
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        swap(&group.feeds[sourceIndexPath.row], &group.feeds[destinationIndexPath.row])
+        swap(&group.feeds[sourceIndexPath.row + 1], &group.feeds[destinationIndexPath.row + 1])
         rss.saveChanges()
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        // this is the top cell.
+        if indexPath.section == 0 {
+            let cell = UITableViewCell(style: .Default, reuseIdentifier: nil)
+            cell.textLabel.text = "All articles"
+            cell.accessoryType = .DisclosureIndicator
+            return cell
+        }
         
         // first, try to dequeue a cell.
         var cell: FeedListCell
@@ -88,6 +96,7 @@ class FeedListVC: UITableViewController {
         else {
             let items = NSBundle.mainBundle().loadNibNamed("FeedListCell", owner: self, options: nil)
             cell = items[0] as FeedListCell
+            cell.accessoryType = .DisclosureIndicator
         }
         
         let feed            = group.feeds[indexPath.row]
@@ -100,6 +109,14 @@ class FeedListVC: UITableViewController {
     
     // user selected a feed.
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        // group.
+        if indexPath.section == 0 {
+            pushArticleViewToCollection(group)
+            return
+        }
+        
+        // feed.
         let feed = group.feeds[indexPath.row]
         
         // no articles; fetch them
@@ -107,17 +124,18 @@ class FeedListVC: UITableViewController {
             feed.fetch()
         }
     
-        pushArticleView(feed)
+        pushArticleViewToCollection(feed)
     }
     
     // MARK:- Interface interaction
     
     // push to the article list view for a feed.
-    func pushArticleView(feed: Feed) {
+    func pushArticleViewToCollection(collection: ArticleCollection) {
         let artVC = ArticleListVC(style: .Grouped)
-        artVC.collection = feed
+        artVC.collection = collection
         self.navigationController?.pushViewController(artVC, animated: true)
     }
+    
     
     func addButtonTapped(sender: AnyObject) {
         let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
