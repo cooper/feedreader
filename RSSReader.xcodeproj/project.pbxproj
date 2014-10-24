@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BC50262F19FA1C540002233A /* UIImage+WhiteImage.m in Sources */ = {isa = PBXBuildFile; fileRef = BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */; };
+		BC50263119FA1CE70002233A /* news.png in Resources */ = {isa = PBXBuildFile; fileRef = BC50263019FA1CE70002233A /* news.png */; };
 		BC59D0FC19E6FC14008B6D30 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = BC59D0FB19E6FC14008B6D30 /* TODO */; };
 		BC59D0FE19E6FDD4008B6D30 /* ArticleCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */; };
 		BC59D10019E7862A008B6D30 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FF19E7862A008B6D30 /* Manager.swift */; };
@@ -24,7 +25,6 @@
 		BCC3478119CB4A1D0058823E /* Feed.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3478019CB4A1D0058823E /* Feed.swift */; };
 		BCC3478319CB4BEE0058823E /* FeedGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCC3478219CB4BEE0058823E /* FeedGroup.swift */; };
 		BCDE3C0219DA39700018B268 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCDE3C0119DA39700018B268 /* Article.swift */; };
-		BCE9485119F1D153002FC404 /* news.png in Resources */ = {isa = PBXBuildFile; fileRef = BCE9485019F1D153002FC404 /* news.png */; };
 		BCE9485319F1D715002FC404 /* FeedListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE9485219F1D715002FC404 /* FeedListCell.swift */; };
 		BCE9485919F1D9AD002FC404 /* FeedListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE9485819F1D9AD002FC404 /* FeedListCell.xib */; };
 		BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */; };
@@ -44,6 +44,7 @@
 /* Begin PBXFileReference section */
 		BC50262D19FA1C540002233A /* UIImage+WhiteImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+WhiteImage.h"; sourceTree = "<group>"; };
 		BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+WhiteImage.m"; sourceTree = "<group>"; };
+		BC50263019FA1CE70002233A /* news.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = news.png; sourceTree = "<group>"; };
 		BC59D0FB19E6FC14008B6D30 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollection.swift; sourceTree = "<group>"; };
 		BC59D0FF19E7862A008B6D30 /* Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
@@ -65,7 +66,6 @@
 		BCC3478219CB4BEE0058823E /* FeedGroup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedGroup.swift; sourceTree = "<group>"; };
 		BCD0FC3F19FA136F004B3DE7 /* RSSReader-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RSSReader-Bridging-Header.h"; sourceTree = "<group>"; };
 		BCDE3C0119DA39700018B268 /* Article.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
-		BCE9485019F1D153002FC404 /* news.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = news.png; path = ../../../Downloads/news.png; sourceTree = "<group>"; };
 		BCE9485219F1D715002FC404 /* FeedListCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListCell.swift; sourceTree = "<group>"; };
 		BCE9485819F1D9AD002FC404 /* FeedListCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FeedListCell.xib; sourceTree = "<group>"; };
 		BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedAdderVC.swift; sourceTree = "<group>"; };
@@ -149,7 +149,7 @@
 				BCD6591319DA4BEC00D6176A /* RSS objects */,
 				BCA627C619E4667400273DC6 /* Interface */,
 				BCC3476719CB48E10058823E /* Images.xcassets */,
-				BCE9485019F1D153002FC404 /* news.png */,
+				BC50263019FA1CE70002233A /* news.png */,
 				BCD0FC4319FA1377004B3DE7 /* Objective-C */,
 				BCC3475C19CB48E10058823E /* Supporting Files */,
 				BC59D0FB19E6FC14008B6D30 /* TODO */,
@@ -288,8 +288,8 @@
 			files = (
 				BCB864A419F9338200AAD5CA /* ArticleListCell.xib in Resources */,
 				BCE9485919F1D9AD002FC404 /* FeedListCell.xib in Resources */,
-				BCE9485119F1D153002FC404 /* news.png in Resources */,
 				BC59D0FC19E6FC14008B6D30 /* TODO in Resources */,
+				BC50263119FA1CE70002233A /* news.png in Resources */,
 				BCC3476B19CB48E10058823E /* LaunchScreen.xib in Resources */,
 				BCC3476819CB48E10058823E /* Images.xcassets in Resources */,
 			);
