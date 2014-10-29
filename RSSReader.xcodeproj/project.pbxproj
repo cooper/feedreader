@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC251AE71A001D8C00BD0156 /* ArticleListSmallCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC251AE61A001D8C00BD0156 /* ArticleListSmallCell.swift */; };
 		BC50262F19FA1C540002233A /* UIImage+WhiteImage.m in Sources */ = {isa = PBXBuildFile; fileRef = BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */; };
 		BC50263119FA1CE70002233A /* news.png in Resources */ = {isa = PBXBuildFile; fileRef = BC50263019FA1CE70002233A /* news.png */; };
+		BC557D0A1A0183FE00136D31 /* ArticleListSmallCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC557D091A0183FE00136D31 /* ArticleListSmallCell.xib */; };
 		BC59D0FC19E6FC14008B6D30 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = BC59D0FB19E6FC14008B6D30 /* TODO */; };
 		BC59D0FE19E6FDD4008B6D30 /* ArticleCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */; };
 		BC59D10019E7862A008B6D30 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FF19E7862A008B6D30 /* Manager.swift */; };
@@ -42,9 +44,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BC251AE61A001D8C00BD0156 /* ArticleListSmallCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleListSmallCell.swift; sourceTree = "<group>"; };
 		BC50262D19FA1C540002233A /* UIImage+WhiteImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+WhiteImage.h"; sourceTree = "<group>"; };
 		BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+WhiteImage.m"; sourceTree = "<group>"; };
 		BC50263019FA1CE70002233A /* news.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = news.png; sourceTree = "<group>"; };
+		BC557D091A0183FE00136D31 /* ArticleListSmallCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArticleListSmallCell.xib; sourceTree = "<group>"; };
 		BC59D0FB19E6FC14008B6D30 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollection.swift; sourceTree = "<group>"; };
 		BC59D0FF19E7862A008B6D30 /* Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
@@ -92,6 +96,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BC251B231A017CE200BD0156 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				BCB864A519F9339A00AAD5CA /* ArticleListCell.swift */,
+				BC251AE61A001D8C00BD0156 /* ArticleListSmallCell.swift */,
+				BCB864A319F9338200AAD5CA /* ArticleListCell.xib */,
+				BC557D091A0183FE00136D31 /* ArticleListSmallCell.xib */,
+			);
+			name = Cells;
+			sourceTree = "<group>";
+		};
 		BCA627C619E4667400273DC6 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
@@ -117,8 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				BCA627C419E4666A00273DC6 /* ArticleListVC.swift */,
-				BCB864A519F9339A00AAD5CA /* ArticleListCell.swift */,
-				BCB864A319F9338200AAD5CA /* ArticleListCell.xib */,
+				BC251B231A017CE200BD0156 /* Cells */,
 			);
 			name = "Article list";
 			sourceTree = "<group>";
@@ -289,6 +303,7 @@
 				BCB864A419F9338200AAD5CA /* ArticleListCell.xib in Resources */,
 				BCE9485919F1D9AD002FC404 /* FeedListCell.xib in Resources */,
 				BC59D0FC19E6FC14008B6D30 /* TODO in Resources */,
+				BC557D0A1A0183FE00136D31 /* ArticleListSmallCell.xib in Resources */,
 				BC50263119FA1CE70002233A /* news.png in Resources */,
 				BCC3476B19CB48E10058823E /* LaunchScreen.xib in Resources */,
 				BCC3476819CB48E10058823E /* Images.xcassets in Resources */,
@@ -309,6 +324,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC251AE71A001D8C00BD0156 /* ArticleListSmallCell.swift in Sources */,
 				BCC3478319CB4BEE0058823E /* FeedGroup.swift in Sources */,
 				BCC3478119CB4A1D0058823E /* Feed.swift in Sources */,
 				BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */,

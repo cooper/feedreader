@@ -8,7 +8,7 @@
 
 import Foundation
 
-let veryOldDate =  NSDate(timeIntervalSince1970: 0)
+private let veryOldDate = NSDate(timeIntervalSince1970: 0)
 
 class Article: Equatable {
     
@@ -32,10 +32,15 @@ class Article: Equatable {
         }
         set {
             _rawSummary = newValue
-            summary = newValue.withoutHTMLTagsAndNewlines
+            if countElements(newValue) > 0 {
+                summary = newValue.withoutHTMLTagsAndNewlines
+            }
+            else {
+                summary = nil
+            }
         }
     }
-    var summary = ""
+    var summary: String?
     
     var _identifier: String?
     var identifier: String { return _identifier ?? urlString }

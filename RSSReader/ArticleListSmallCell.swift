@@ -8,10 +8,8 @@
 
 import UIKit
 
-class ArticleListCell: UITableViewCell {
-    @IBOutlet var iconView: UIImageView!
+class ArticleListSmallCell: UITableViewCell {
     @IBOutlet var label: UILabel!
-    @IBOutlet var descriptionView: UILabel!
     @IBOutlet var containerView: UIView!
     @IBOutlet var publisherView: UIImageView!
     
@@ -26,6 +24,6 @@ class ArticleListCell: UITableViewCell {
         let backgroundView = UIView()
         backgroundView.backgroundColor = self.containerView.backgroundColor
         self.selectedBackgroundView = backgroundView
-
+        
     }
 }

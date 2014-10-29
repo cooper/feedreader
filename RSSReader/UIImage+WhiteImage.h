@@ -4,6 +4,6 @@
 
 @interface UIImage (WhiteImage)
  
-- (UIImage *)whiteImage;
- 
+@property(readonly) UIImage *whiteImage;
+
 @end

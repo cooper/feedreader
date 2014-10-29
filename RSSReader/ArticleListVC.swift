@@ -12,7 +12,16 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     var collection: ArticleCollection!
     var sortedArticles = [Article]()
     
+    // load the cell nibs.
+    private let nib1 = UINib(nibName: "ArticleListCell", bundle: nil)
+    private let nib2 = UINib(nibName: "ArticleListSmallCell", bundle: nil)
+
     override func viewDidLoad() {
+        
+        // register the nibs for the cells in the table view.
+        tableView.registerNib(nib1, forCellReuseIdentifier: "article")
+        tableView.registerNib(nib2, forCellReuseIdentifier: "articleSmall")
+        
         tableView.separatorColor  = UIColor.clearColor()
         tableView.backgroundColor = UIColor.whiteColor()
         refresh()
@@ -27,7 +36,8 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 140
+        let article = sortedArticles[indexPath.section]
+        return article.summary != nil ? 140 : 60
     }
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -39,43 +49,38 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let article = sortedArticles[indexPath.section]//.row]
         
-        // first, try to dequeue a cell.
-        var cell: ArticleListCell
-        if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("article") as? ArticleListCell {
-            cell = cellMaybe
+        // it has a summary.
+        if let summary = article.summary {
+
+            let cell = tableView.dequeueReusableCellWithIdentifier("article", forIndexPath: indexPath) as ArticleListCell
+            
+            cell.label.text           = article.title
+            cell.publisherView.image  = article.feed.logo.whiteImage
+            
+            cell.iconView.image        = defaultImage
+            cell.descriptionView.text  = summary
+            
+            // determine the appropriate size for the image.
+            let widthRatio  = cell.iconView.bounds.size.width  / cell.iconView.image!.size.width
+            let heightRatio = cell.iconView.bounds.size.height / cell.iconView.image!.size.height
+            let scale       = min(widthRatio, heightRatio)
+            let imageWidth  = scale * cell.iconView.image!.size.width
+            let imageHeight = scale * cell.iconView.image!.size.height
+            cell.iconView.frame.size.width = imageWidth
+            
+            return cell
         }
             
-        // create a new cell.
+        // it has no summary, so use a smaller cell.
         else {
-            let items = NSBundle.mainBundle().loadNibNamed("ArticleListCell", owner: self, options: nil)
-            cell = items[0] as ArticleListCell
-            cell.containerView.layer.cornerRadius = 10
-            cell.containerView.layer.masksToBounds = true
-            //cell.containerView.layer.rasterizationScale = 3
-            //cell.containerView.layer.shouldRasterize = true
-            let backgroundView = UIView()
-            backgroundView.backgroundColor = cell.containerView.backgroundColor
-            cell.selectedBackgroundView = backgroundView
+            let cell = tableView.dequeueReusableCellWithIdentifier("articleSmall", forIndexPath: indexPath) as ArticleListSmallCell
+            cell.label.text           = article.title
+            cell.publisherView.image  = article.feed.logo.whiteImage
+            return cell
         }
         
-        let article               = sortedArticles[indexPath.section]//.row]
-        cell.label.text           = article.title
-        cell.descriptionView.text = article.summary
-        cell.iconView.image       = defaultImage
-        cell.publisherView.image  = article.feed.logo.whiteImage()
-        
-        let widthRatio = cell.iconView.bounds.size.width / cell.iconView.image!.size.width
-        let heightRatio = cell.iconView.bounds.size.height / cell.iconView.image!.size.height
-        let scale = min(widthRatio, heightRatio)
-        let imageWidth = scale * cell.iconView.image!.size.width
-        let imageHeight = scale * cell.iconView.image!.size.height
-        cell.iconView.frame.size.width = imageWidth
-        NSLog("width: \(imageWidth), height: \(cell.iconView.bounds.size.height)")
-        
-        //cell.iconView.sizeToFit()
-        //cell.iconView.backgroundColor = UIColor.whiteColor()
-        return cell
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
