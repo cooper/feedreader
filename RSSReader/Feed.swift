@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 let defaultImage = UIImage(named: "news.png")!
 
@@ -14,32 +15,51 @@ let defaultImage = UIImage(named: "news.png")!
 // this class must inherit from NSObject because it complies with
 // an Objective-C protocol (NSXMLParserDelegate)
 //
-class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
+class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // MARK:- Feed details
     //                                                                              Stored
+    @NSManaged var urlString: String?
     
-    let url: NSURL;                         // the URL of the feed                     (S)
-    var articles = [Article]()              // articles in the feed                    (S)
+    var url: NSURL { return NSURL(string: urlString!)! }
+    
+                    // the URL of the feed                     (S)
+    @NSManaged var managedArticles: NSMutableOrderedSet
+    @NSManaged var managedGroups: NSMutableSet
+    var articles: [Article] { return self.managedArticles.array as [Article] }              // articles in the feed                    (S)
+    
     var articlesById = [String: Article]()  // articles by identifier                  (S)
-    var channelTitle: String?               // actual title from the feed              (S)
-    var userSetTitle: String?               // nickname assigned by user               (S)
+    @NSManaged var channelTitle: String?               // actual title from the feed              (S)
+    @NSManaged var userSetTitle: String?               // nickname assigned by user               (S)
     
     // best title option available.
     var title: String { return userSetTitle ?? channelTitle ?? url.absoluteString! }
-    
-    // index in feed manager.
-    var index: Int { return find(rss.manager.feeds, self)! }
     
     var loading = false                     // is it being fetched now?
     weak var currentGroup: FeedGroup?       // current feed group in user interface
     
     // icon and logo.                       // for atom:
-    var logo = defaultImage                 // ideally 1:1 ratio (small size)          (S)
-    var icon = defaultImage                 // ideally 2:1 ratio (a bit bigger)        (S)
+    
+    @NSManaged var logoData: NSData?
+    @NSManaged var iconData: NSData?
+    
+    lazy var logo: UIImage = {
+        if let data = self.logoData {
+            return UIImage(data: data)!
+        }
+        return defaultImage
+    }()
+    lazy var icon: UIImage = {
+        if let data = self.iconData {
+            return UIImage(data: data)!
+        }
+        return defaultImage
+    }()
+    
                                             // for RSS: the two are equivalent, size any.
-    var iconURLString: String?              // URL of image representing of the feed   (S)
-    var logoURLString: String?              // URL of image representing of the feed   (S)
+    @NSManaged var iconUrlString: String?              // URL of image representing of the feed   (S)
+    @NSManaged var logoUrlString: String?              // URL of image representing of the feed   (S)
+    
     private var shouldFetchIcon = false     // whether it's necessary to fetch icon
     private var shouldFetchLogo = false     // whether it's necessary to fetch logo
     
@@ -50,43 +70,38 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         return "Feed \(url.absoluteString!)"
     }
     
-    init(url feedUrl: NSURL) {
-        url = feedUrl
-    }
-    
-    convenience init(urlString: String) {
-        let feedUrl = NSURL(string: urlString)!
-        self.init(url: feedUrl)
-    }
-    
-    convenience init(storage: NSDictionary) {
-        self.init(urlString: storage["urlString"]! as String)
-        
-        // these are all optional strings.
-        // I did this because I like inout.
-        func setMaybe(inout target: String?, name: String) {
-            target = storage[name] as? String
-        }
-        setMaybe(&userSetTitle,  "userSetTitle")
-        setMaybe(&channelTitle,  "channelTitle")
-        setMaybe(&iconURLString, "iconURLString")
-        setMaybe(&logoURLString, "logoURLString")
-        
-        // images.
-        if let iconData = storage["icon"] as? NSData {
-            icon = UIImage(data: iconData)!
-        }
-        if let logoData = storage["logo"] as? NSData {
-            logo = UIImage(data: logoData)!
-        }
-        
-        // add articles.
-        for articleDict in storage["articles"]! as [NSDictionary] {
-            let article = Article(feed: self, storage: articleDict)
-            addArticle(article)
-        }
-        
-    }
+//    init(urlString: String) {
+//        self.urlString = urlString
+//    }
+//    
+//    convenience init(storage: NSDictionary) {
+//        self.init(urlString: storage["urlString"]! as String)
+//        
+//        // these are all optional strings.
+//        // I did this because I like inout.
+//        func setMaybe(inout target: String?, name: String) {
+//            target = storage[name] as? String
+//        }
+//        setMaybe(&userSetTitle,  "userSetTitle")
+//        setMaybe(&channelTitle,  "channelTitle")
+//        setMaybe(&iconURLString, "iconURLString")
+//        setMaybe(&logoURLString, "logoURLString")
+//        
+//        // images.
+//        if let iconData = storage["icon"] as? NSData {
+//            icon = UIImage(data: iconData)!
+//        }
+//        if let logoData = storage["logo"] as? NSData {
+//            logo = UIImage(data: logoData)!
+//        }
+//        
+//        // add articles.
+//        for articleDict in storage["articles"]! as [NSDictionary] {
+//            let article = Article(feed: self, storage: articleDict)
+//            addArticle(article)
+//        }
+//        
+//    }
     
     // add an article to the feed, remembering it by both index and identifier.
     func addArticle(article: Article) {
@@ -96,7 +111,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         if articlesById[article.identifier] != nil {
             articlesById[article.identifier] = article
             if let index = find(articles, article) {
-                articles[index] = article
+                managedArticles[index] = article
                 return
             }
         }
@@ -107,14 +122,14 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the article being added is more recent.
             if art.publishDate.laterDate(article.publishDate) == article.publishDate {
-                articles.insert(article, atIndex: i)
+                managedArticles.insertObject(article, atIndex: i)
                 return
             }
             
         }
         
         // may not have been added if it's the oldest one.
-        articles.append(article)
+        managedArticles.addObject(article)
 
         
     }
@@ -190,8 +205,8 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // download the image, then optionally reload a table view.
     func downloadImages() {
-        fetchImage(logoURLString, shouldFetchLogo) { self.logo = $0 }
-        fetchImage(iconURLString, shouldFetchIcon) { self.icon = $0 }
+        fetchImage(logoUrlString, shouldFetchLogo) { self.logo = $0 }
+        fetchImage(iconUrlString, shouldFetchIcon) { self.icon = $0 }
     }
     
     // convenience for fetching with no callback.
@@ -271,7 +286,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
         let attributes = attributeDict as [String: String]
-        NSLog("Starting element: \(elementName)")
+        //NSLog("Starting element: \(elementName)")
         
         switch elementName {
             
@@ -289,7 +304,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the start of an article.
             case "item", "entry":
-                article = Article(feed: self)
+                article = rss.manager.newArticleForFeed(self)
                 elementType = .Item
 
             // link of an article.
@@ -369,7 +384,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             // the title of an article.
             case .ItemTitle:
                 article?.title? += string
-                NSLog("adding to title: \(string)")
+                //NSLog("adding to title: \(string)")
             
             // in RSS, the link is within <link> tags (handled here).
             // in Atom, the link is in the href attribute.
@@ -378,13 +393,13 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
 
             // icon for the feed.
             case .FeedIconURL:
-                shouldFetchIcon = icon == defaultImage || string != iconURLString
-                iconURLString   = string
+                shouldFetchIcon = icon == defaultImage || string != iconUrlString
+                iconUrlString   = string
             
             // logo for the feed.
             case .FeedLogoURL:
-                shouldFetchLogo = logo == defaultImage || string != logoURLString
-                logoURLString   = string
+                shouldFetchLogo = logo == defaultImage || string != logoUrlString
+                logoUrlString   = string
             
             // item identifier.
             case .ItemId:
@@ -410,7 +425,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         switch element.type {
             
             case .Channel:
-                iconURLString = iconURLString ?? logoURLString
+                iconUrlString = iconUrlString ?? logoUrlString
             
             // add the current article to the feed.
             // addArticle() MUST be called after the identifier (if any) has been determined.
@@ -428,39 +443,6 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
         }
         closeElement()
-    }
-    
-    // returns NSDictionary because it will be converted to such anyway.
-    var forStorage: NSDictionary {
-        
-        // note: URLs can be stored in user defaults
-        /// but apparently not inside of a collection
-        
-        // articles are stored as an array, but when they are added back to
-        // the feed, they are stored in RAM by identifier as well.
-        let dict: NSMutableDictionary = [
-            "urlString":    url.absoluteString!,
-            "articles":     articles.map { $0.forStorage }
-        ]
-
-        let logoData = logo == defaultImage ? nil : logo.pngRepresentation
-        let iconData = icon == defaultImage ? nil : icon.pngRepresentation
-        
-        // these optionals should be left out if not present.
-        let optionals: [String : AnyObject?] = [
-            "channelTitle":     channelTitle,
-            "userSetTitle":     userSetTitle,
-            "iconURLString":    iconURLString,
-            "logoURLString":    logoURLString,
-            "logo":             logoData,
-            "icon":             iconData
-        ]
-        for (key, value) in optionals {
-            if value == nil { continue }
-            dict[key] = value!
-        }
-
-        return dict
     }
     
 }

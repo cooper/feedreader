@@ -11,6 +11,7 @@
 		BC50262F19FA1C540002233A /* UIImage+WhiteImage.m in Sources */ = {isa = PBXBuildFile; fileRef = BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */; };
 		BC50263119FA1CE70002233A /* news.png in Resources */ = {isa = PBXBuildFile; fileRef = BC50263019FA1CE70002233A /* news.png */; };
 		BC557D0A1A0183FE00136D31 /* ArticleListSmallCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC557D091A0183FE00136D31 /* ArticleListSmallCell.xib */; };
+		BC557D421A0193A000136D31 /* RSSReader.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BC557D401A0193A000136D31 /* RSSReader.xcdatamodeld */; };
 		BC59D0FC19E6FC14008B6D30 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = BC59D0FB19E6FC14008B6D30 /* TODO */; };
 		BC59D0FE19E6FDD4008B6D30 /* ArticleCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */; };
 		BC59D10019E7862A008B6D30 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FF19E7862A008B6D30 /* Manager.swift */; };
@@ -30,7 +31,7 @@
 		BCE9485319F1D715002FC404 /* FeedListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE9485219F1D715002FC404 /* FeedListCell.swift */; };
 		BCE9485919F1D9AD002FC404 /* FeedListCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = BCE9485819F1D9AD002FC404 /* FeedListCell.xib */; };
 		BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */; };
-		BCFADACA19F9DD7A00F386C9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCFADAC919F9DD7A00F386C9 /* CoreData.framework */; };
+		BCFADACA19F9DD7A00F386C9 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCFADAC919F9DD7A00F386C9 /* CoreData.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+WhiteImage.m"; sourceTree = "<group>"; };
 		BC50263019FA1CE70002233A /* news.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = news.png; sourceTree = "<group>"; };
 		BC557D091A0183FE00136D31 /* ArticleListSmallCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ArticleListSmallCell.xib; sourceTree = "<group>"; };
+		BC557D411A0193A000136D31 /* RSSReader.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RSSReader.xcdatamodel; sourceTree = "<group>"; };
 		BC59D0FB19E6FC14008B6D30 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollection.swift; sourceTree = "<group>"; };
 		BC59D0FF19E7862A008B6D30 /* Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 		BCC3475B19CB48E10058823E /* RSSReader */ = {
 			isa = PBXGroup;
 			children = (
+				BC557D401A0193A000136D31 /* RSSReader.xcdatamodeld */,
 				BCC3475E19CB48E10058823E /* AppDelegate.swift */,
 				BCB8649F19F9328000AAD5CA /* Extensions.swift */,
 				BCD6591319DA4BEC00D6176A /* RSS objects */,
@@ -326,6 +329,7 @@
 			files = (
 				BC251AE71A001D8C00BD0156 /* ArticleListSmallCell.swift in Sources */,
 				BCC3478319CB4BEE0058823E /* FeedGroup.swift in Sources */,
+				BC557D421A0193A000136D31 /* RSSReader.xcdatamodeld in Sources */,
 				BCC3478119CB4A1D0058823E /* Feed.swift in Sources */,
 				BCF81BE619D0AA5A009C9092 /* FeedAdderVC.swift in Sources */,
 				BC59D0FE19E6FDD4008B6D30 /* ArticleCollection.swift in Sources */,
@@ -458,9 +462,10 @@
 				INFOPLIST_FILE = RSSReader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "RSSReader/RSSReader-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Debug;
 		};
@@ -472,8 +477,9 @@
 				INFOPLIST_FILE = RSSReader/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "RSSReader/RSSReader-Bridging-Header.h";
+				VALID_ARCHS = "armv7 armv7s arm64";
 			};
 			name = Release;
 		};
@@ -542,6 +548,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		BC557D401A0193A000136D31 /* RSSReader.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BC557D411A0193A000136D31 /* RSSReader.xcdatamodel */,
+			);
+			currentVersion = BC557D411A0193A000136D31 /* RSSReader.xcdatamodel */;
+			path = RSSReader.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = BCC3475119CB48E10058823E /* Project object */;
 }

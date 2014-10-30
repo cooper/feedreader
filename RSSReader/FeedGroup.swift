@@ -7,46 +7,23 @@
 //
 
 import Foundation
+import CoreData
 
-class FeedGroup: ArticleCollection {
-    var feeds = [Feed]()
-    var title = "(Unnamed)"
-    var isDefault = false
-
-    convenience init(feeds: [Feed]) {
-        self.init()
-        self.feeds = feeds
-    }
+class FeedGroup: NSManagedObject, ArticleCollection, Printable {
     
-    convenience init(title: String) {
-        self.init()
-        self.title = title
-    }
+    @NSManaged var managedTitle: String
+    var title: String { return managedTitle }
+    @NSManaged var managedFeeds: NSMutableOrderedSet
     
-    convenience init(storage: NSDictionary) {
-        self.init()
-        addFeedsFromStorage(storage)
-    }
+    var feeds: [Feed]   { return managedFeeds.array as [Feed] }
+    var isDefault: Bool { return title == "Default" }
     
-    // add feeds from storage to the group.
-    // this should be called after the feeds themselves have been loaded from storage.
-    // this method only grabs the feeds from their indices and adds them to the group.
-    func addFeedsFromStorage(storage: NSDictionary) {
-        
-        // group name.
-        title = storage["title"] as String
-        
-        // add each feed from storage.
-        let feedsStored = storage["feeds"] as [Int]
-        for feedIndex in feedsStored {
-            let feed = rss.manager.feeds[feedIndex]
-            addFeed(feed)
-        }
-        
+    override var description: String {
+        return "Group \(title)"
     }
     
     func addFeed(feed: Feed) {
-        feeds.append(feed)
+        managedFeeds.addObject(feed)
     }
 
     // MARK:- Article collection
@@ -82,21 +59,6 @@ class FeedGroup: ArticleCollection {
         for feed in feeds {
             feed.fetchThen(then)
         }
-    }
-    
-    // MARK:- Storage
-    
-    // NSDictionary representing the group.
-    // feeds are represented as an array of indices in the manager.
-    var forStorage: NSDictionary {
-        
-        // find the index of each feed in the manager.
-        let feedIndices = feeds.map { $0.index }
-        
-        return [
-            "title":    title,
-            "feeds":    feedIndices
-        ]
     }
     
 }
