@@ -37,7 +37,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         let article = sortedArticles[indexPath.section]
-        return article.summary != nil ? 140 : 60
+        return article.hasSummary ? 140 : 60
     }
     
     override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -52,7 +52,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
         let article = sortedArticles[indexPath.section]//.row]
         
         // it has a summary.
-        if let summary = article.summary {
+        if article.hasSummary {
 
             let cell = tableView.dequeueReusableCellWithIdentifier("article", forIndexPath: indexPath) as ArticleListCell
             
@@ -60,7 +60,7 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
             cell.publisherView.image  = article.feed.logo.whiteImage
             
             cell.iconView.image        = defaultImage
-            cell.descriptionView.text  = summary
+            cell.descriptionView.text  = article.summary!
             
             // determine the appropriate size for the image.
             let widthRatio  = cell.iconView.bounds.size.width  / cell.iconView.image!.size.width

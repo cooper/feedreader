@@ -67,7 +67,7 @@ class FeedListVC: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        swap(&group.mutableFeeds[sourceIndexPath.row + 1], &group.mutableFeeds[destinationIndexPath.row + 1])
+        swap(&group.mutableFeeds[sourceIndexPath.row], &group.mutableFeeds[destinationIndexPath.row])
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

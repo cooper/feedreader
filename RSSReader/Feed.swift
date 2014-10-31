@@ -17,35 +17,93 @@ let defaultImage = UIImage(named: "news.png")!
 //
 class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
-    // MARK:- Feed details
-    //                                                                              Stored
-    @NSManaged var urlString: String?
+    // MARK:- Feed properties
     
-    var url: NSURL { return NSURL(string: urlString!)! }
+    // URL
+    //
+    // urlString is persistent. URLs cannot be stored in Core Data.
+    // Therefore, url is a computed URL value of the urlString.
+    //
     
-                    // the URL of the feed                     (S)
-    @NSManaged var managedArticles: NSMutableOrderedSet
-    @NSManaged var managedGroups: NSSet
-    lazy var mutableGroups: NSMutableSet = {
-       return self.mutableSetValueForKey("managedGroups")
+    @NSManaged var urlString: String
+    
+    var url: NSURL { return NSURL(string: urlString)! }
+    
+    // Articles
+    //
+    // managedArticles represents the ordered set
+    // managed by Core Data.
+    //
+    // mutableArticles is the mutable ordered set.
+    //
+    // articles, however, is a pure-Swift array of
+    // articles which is useful for iteration and such.
+    //
+    // articlesById is a computed property which makes
+    // it easier to determine which articles exist already,
+    // based on their URL string.
+    //
+    @NSManaged var managedArticles: NSOrderedSet
+    
+    lazy var mutableArticles: NSMutableOrderedSet = {
+        return self.mutableOrderedSetValueForKey("managedArticles")
     }()
     
-    var articles: [Article] { return self.managedArticles.array as [Article] }              // articles in the feed                    (S)
+    var articles: [Article] {
+        return self.managedArticles.array as [Article]
+    }
     
-    var articlesById = [String: Article]()  // articles by identifier                  (S)
-    @NSManaged var channelTitle: String?               // actual title from the feed              (S)
-    @NSManaged var userSetTitle: String?               // nickname assigned by user               (S)
+    var articlesById: [String: Article] {
+        var byId = [String: Article]()
+        for article in articles {
+            byId[article.identifier] = article
+        }
+        return byId
+    }
     
-    // best title option available.
+    // Groups
+    //
+    // this property is not necessarily used, but only represents the
+    // inverse of the FeedGroup.feeds relationship.
+    //
+    
+    @NSManaged var managedGroups: NSSet
+    
+    // Titles
+    //
+    // channelTitle represents the title assigned by the feed itself.
+    // userSetTitle represents the title set by the user, or nickname.
+    // Both properties are persistent.
+    //
+    // title chooses the best possible title available, the first that exists of:
+    //      user set title,
+    //      channel-set title,
+    //      feed URL string
+    //
+    
+    @NSManaged var channelTitle: String?    // actual title from the feed
+    @NSManaged var userSetTitle: String?    // nickname assigned by user
+    
     var title: String { return userSetTitle ?? channelTitle ?? url.absoluteString! }
+
+
+    // Images
+    //
+    // iconUrlString and logoUrlString are persistent and set by the feed itself.
+    //
+    // logoData and iconData are also persistent and are the stored data which
+    // may have been downloaded after the feed was fetched a previous time.
+    //
+    // logo and icon are lazy variables which will be computed after the feed is
+    // retrieved from Core Data, but they will also be re-set again later if the
+    // images are downloaded and have been modified.
+    //
     
-    var loading = false                     // is it being fetched now?
-    weak var currentGroup: FeedGroup?       // current feed group in user interface
+    @NSManaged var iconUrlString: String?   // URL of icon representing of the feed
+    @NSManaged var logoUrlString: String?   // URL of logo representing of the feed
     
-    // icon and logo.                       // for atom:
-    
-    @NSManaged var logoData: NSData?
-    @NSManaged var iconData: NSData?
+    @NSManaged var logoData: NSData?        // data representing the logo
+    @NSManaged var iconData: NSData?        // data representing the icon
     
     lazy var logo: UIImage = {
         if let data = self.logoData {
@@ -53,6 +111,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
         }
         return defaultImage
     }()
+    
     lazy var icon: UIImage = {
         if let data = self.iconData {
             return UIImage(data: data)!
@@ -60,64 +119,27 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
         return defaultImage
     }()
     
-                                            // for RSS: the two are equivalent, size any.
-    @NSManaged var iconUrlString: String?              // URL of image representing of the feed   (S)
-    @NSManaged var logoUrlString: String?              // URL of image representing of the feed   (S)
+    // MARK:- Non-persistent state properties
     
     private var shouldFetchIcon = false     // whether it's necessary to fetch icon
     private var shouldFetchLogo = false     // whether it's necessary to fetch logo
     
-    // MARK:- Feed methods
+    var loading = false                     // is it being fetched now?
+    weak var currentGroup: FeedGroup?       // current feed group in user interface
     
     // printable description
     override var description: String {
         return "Feed \(url.absoluteString!)"
     }
     
-//    init(urlString: String) {
-//        self.urlString = urlString
-//    }
-//    
-//    convenience init(storage: NSDictionary) {
-//        self.init(urlString: storage["urlString"]! as String)
-//        
-//        // these are all optional strings.
-//        // I did this because I like inout.
-//        func setMaybe(inout target: String?, name: String) {
-//            target = storage[name] as? String
-//        }
-//        setMaybe(&userSetTitle,  "userSetTitle")
-//        setMaybe(&channelTitle,  "channelTitle")
-//        setMaybe(&iconURLString, "iconURLString")
-//        setMaybe(&logoURLString, "logoURLString")
-//        
-//        // images.
-//        if let iconData = storage["icon"] as? NSData {
-//            icon = UIImage(data: iconData)!
-//        }
-//        if let logoData = storage["logo"] as? NSData {
-//            logo = UIImage(data: logoData)!
-//        }
-//        
-//        // add articles.
-//        for articleDict in storage["articles"]! as [NSDictionary] {
-//            let article = Article(feed: self, storage: articleDict)
-//            addArticle(article)
-//        }
-//        
-//    }
-    
+    // MARK:- Feed methods
+
     // add an article to the feed, remembering it by both index and identifier.
     func addArticle(article: Article) {
-        articlesById[article.identifier] = article
 
         // this one already exists; update it.
         if articlesById[article.identifier] != nil {
-            articlesById[article.identifier] = article
-            if let index = find(articles, article) {
-                managedArticles[index] = article
-                return
-            }
+            mutableArticles.removeObject(article)
         }
         
         // FIXME: I'm not sure that this even works.
@@ -126,15 +148,14 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the article being added is more recent.
             if art.publishDate.laterDate(article.publishDate) == article.publishDate {
-                managedArticles.insertObject(article, atIndex: i)
+                mutableArticles.insertObject(article, atIndex: i)
                 return
             }
             
         }
         
         // may not have been added if it's the oldest one.
-        managedArticles.addObject(article)
-
+        mutableArticles.addObject(article)
         
     }
     
@@ -178,7 +199,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
         }
     }
     
-    func fetchImage(urlString: String!, _ doIt: Bool, handler: (UIImage) -> Void) {
+    func fetchImage(urlString: String!, _ doIt: Bool, handler: (NSData, UIImage) -> Void) {
         
         // no image URL specified.
         if urlString == nil || !doIt { return }
@@ -194,8 +215,11 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
                 return
             }
             
+            // create UIImage, remove white background, if any, then
+            // convert back to binary data for storage in Core Data.
             // apparently working with UIImage is threadsafe now.
-            handler(UIImage(data: data)!.withoutWhiteBackground)
+            let image = UIImage(data: data)!.withoutWhiteBackground
+            handler(image.pngRepresentation!, image)
             
             // reload the table in the main queue, if there is one visible.
             mainQueue {
@@ -209,8 +233,16 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // download the image, then optionally reload a table view.
     func downloadImages() {
-        fetchImage(logoUrlString, shouldFetchLogo) { self.logo = $0 }
-        fetchImage(iconUrlString, shouldFetchIcon) { self.icon = $0 }
+        fetchImage(logoUrlString, shouldFetchLogo) {
+            data, image in
+            self.logoData = data
+            self.logo = image
+        }
+        fetchImage(iconUrlString, shouldFetchIcon) {
+            data, image in
+            self.iconData = data
+            self.icon = image
+        }
     }
     
     // convenience for fetching with no callback.
@@ -323,7 +355,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
                     
                     // the main link.
                     case "alternate" where attributes["href"] != nil:
-                        article!.urlString = attributes["href"]
+                        article!.urlString = attributes["href"]!
                     
                     // some other.
                     default:
@@ -387,7 +419,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the title of an article.
             case .ItemTitle:
-                article?.title? += string
+                article?.title += string
                 //NSLog("adding to title: \(string)")
             
             // in RSS, the link is within <link> tags (handled here).
@@ -411,7 +443,13 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // item description.
             case .ItemDesc:
-                article?.rawSummary += string
+
+                if article?.rawSummary == nil {
+                    article?.rawSummary = string
+                }
+                else {
+                    article?.rawSummary! += string
+                }
             
             case .ItemPubDate:
                 current.itemPublishedDate += string
@@ -441,6 +479,9 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
                 article!.publishDate =
                     NSDate.fromInternetString(current.itemPublishedDate) ??
                     article!.publishDate
+            
+            case .ItemDesc:
+                article!.summary = article!.rawSummary?.withoutHTMLTagsAndNewlines
             
             default:
                 break

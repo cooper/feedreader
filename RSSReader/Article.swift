@@ -13,35 +13,19 @@ private let veryOldDate = NSDate(timeIntervalSince1970: 0)
 
 class Article: NSManagedObject, Equatable {
     
-    // these are implicitly unwrapped optionals
-    // because an article object will ONLY be dealt with
-    // without them set inside of the XML parsing stage.
-    @NSManaged var title: String!
-    @NSManaged var urlString: String!
+    @NSManaged var title: String
+    @NSManaged var urlString: String
     @NSManaged var publishDate: NSDate
-    @NSManaged var feed: Feed!
+    @NSManaged var feed: Feed
     
-    var url: NSURL {
-        return NSURL(string: urlString)!
-    }
+    var url: NSURL { return NSURL(string: urlString)! }
     
     // summary. caches without HTML tags.
-    private var _rawSummary = ""
-    var rawSummary: String {
-        get {
-            return _rawSummary
-        }
-        set {
-            _rawSummary = newValue
-            if countElements(newValue) > 0 {
-                summary = newValue.withoutHTMLTagsAndNewlines
-            }
-            else {
-                summary = nil
-            }
-        }
-    }
-    var summary: String?
+    @NSManaged var rawSummary: String?
+    
+    // intitially a lazy var, but set later when feed fetched.
+    lazy var summary: String? = { return self.rawSummary?.withoutHTMLTagsAndNewlines }()
+    var hasSummary: Bool { return summary != nil && countElements(summary!) > 0 }
     
     var _identifier: String?
     var identifier: String { return _identifier ?? urlString }
