@@ -25,7 +25,11 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
                     // the URL of the feed                     (S)
     @NSManaged var managedArticles: NSMutableOrderedSet
-    @NSManaged var managedGroups: NSMutableSet
+    @NSManaged var managedGroups: NSSet
+    lazy var mutableGroups: NSMutableSet = {
+       return self.mutableSetValueForKey("managedGroups")
+    }()
+    
     var articles: [Article] { return self.managedArticles.array as [Article] }              // articles in the feed                    (S)
     
     var articlesById = [String: Article]()  // articles by identifier                  (S)

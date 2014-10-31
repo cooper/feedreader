@@ -50,7 +50,7 @@ class FeedListVC: UITableViewController {
             case .Delete:
                 
                 let feed = group.managedFeeds[indexPath.row] as Feed
-                group.managedFeeds.removeObject(feed)
+                group.mutableFeeds.removeObject(feed)
                 rss.manager.removeFeed(feed)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
 
@@ -67,7 +67,7 @@ class FeedListVC: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        swap(&group.managedFeeds[sourceIndexPath.row + 1], &group.managedFeeds[destinationIndexPath.row + 1])
+        swap(&group.mutableFeeds[sourceIndexPath.row + 1], &group.mutableFeeds[destinationIndexPath.row + 1])
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

@@ -18,15 +18,16 @@
         <attribute name="urlString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="userSetTitle" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="managedArticles" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Article" inverseName="feed" inverseEntity="Article" syncable="YES"/>
-        <relationship name="managedGroups" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="FeedGroup" inverseName="managedFeeds" inverseEntity="FeedGroup" syncable="YES"/>
+        <relationship name="managedGroups" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FeedGroup" inverseName="managedFeeds" inverseEntity="FeedGroup" syncable="YES"/>
     </entity>
     <entity name="FeedGroup" representedClassName="RSSReader.FeedGroup" syncable="YES">
+        <attribute name="isDefault" optional="YES" attributeType="Boolean" defaultValueString="NO" syncable="YES"/>
         <attribute name="managedTitle" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="managedFeeds" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Feed" inverseName="managedGroups" inverseEntity="Feed" syncable="YES"/>
     </entity>
     <elements>
         <element name="Article" positionX="268" positionY="212" width="128" height="133"/>
         <element name="Feed" positionX="-54" positionY="-9" width="128" height="193"/>
-        <element name="FeedGroup" positionX="-326" positionY="54" width="110" height="73"/>
+        <element name="FeedGroup" positionX="-326" positionY="54" width="110" height="88"/>
     </elements>
 </model>

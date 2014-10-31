@@ -13,17 +13,22 @@ class FeedGroup: NSManagedObject, ArticleCollection, Printable {
     
     @NSManaged var managedTitle: String
     var title: String { return managedTitle }
-    @NSManaged var managedFeeds: NSMutableOrderedSet
     
-    var feeds: [Feed]   { return managedFeeds.array as [Feed] }
-    var isDefault: Bool { return title == "Default" }
+    @NSManaged var managedFeeds: NSOrderedSet
+    var feeds: [Feed] { return managedFeeds.array as [Feed] }
+    lazy var mutableFeeds: NSMutableOrderedSet = {
+        return self.mutableOrderedSetValueForKey("managedFeeds")
+    }()
+    
+    @NSManaged var isDefault: Bool
     
     override var description: String {
         return "Group \(title)"
     }
     
     func addFeed(feed: Feed) {
-        managedFeeds.addObject(feed)
+        println("[\(title)] Added \(feed.title)")
+        mutableFeeds.addObject(feed)
     }
 
     // MARK:- Article collection

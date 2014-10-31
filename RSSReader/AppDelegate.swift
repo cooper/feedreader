@@ -28,8 +28,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // load data.
         manager.loadFromCoreData()
+        NSLog("groups: \(manager.groups)")
         manager.fetchAllFeeds()
-        defaultGroup = manager.groups.count > 0 ? manager.groups.first : manager.newGroupTitled("Default")
+        
+        defaultGroup = manager.defaultGroup ?? manager.newGroupTitled("Default")
+        defaultGroup.isDefault = true
         
         // set up interface.
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
