@@ -15,6 +15,8 @@
 		BC59D0FC19E6FC14008B6D30 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = BC59D0FB19E6FC14008B6D30 /* TODO */; };
 		BC59D0FE19E6FDD4008B6D30 /* ArticleCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */; };
 		BC59D10019E7862A008B6D30 /* Manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC59D0FF19E7862A008B6D30 /* Manager.swift */; };
+		BC8F9FA21A08120D004ACE42 /* ArticleWebVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC8F9FA01A08120D004ACE42 /* ArticleWebVC.swift */; };
+		BC8F9FA31A08120D004ACE42 /* ArticleWebVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC8F9FA11A08120D004ACE42 /* ArticleWebVC.xib */; };
 		BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */; };
 		BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCA627C419E4666A00273DC6 /* ArticleListVC.swift */; };
 		BCA627C819E46E1200273DC6 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCA627C719E46E1200273DC6 /* WebKit.framework */; };
@@ -54,6 +56,8 @@
 		BC59D0FB19E6FC14008B6D30 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		BC59D0FD19E6FDD4008B6D30 /* ArticleCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleCollection.swift; sourceTree = "<group>"; };
 		BC59D0FF19E7862A008B6D30 /* Manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Manager.swift; sourceTree = "<group>"; };
+		BC8F9FA01A08120D004ACE42 /* ArticleWebVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ArticleWebVC.swift; path = RSSReader/ArticleWebVC.swift; sourceTree = "<group>"; };
+		BC8F9FA11A08120D004ACE42 /* ArticleWebVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ArticleWebVC.xib; path = RSSReader/ArticleWebVC.xib; sourceTree = "<group>"; };
 		BC9B6BAF19D1FAD400D0E0D2 /* FeedListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeedListVC.swift; sourceTree = "<group>"; };
 		BCA627C419E4666A00273DC6 /* ArticleListVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleListVC.swift; sourceTree = "<group>"; };
 		BCA627C719E46E1200273DC6 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -109,12 +113,23 @@
 			name = Cells;
 			sourceTree = "<group>";
 		};
+		BC8F9FA41A084F0F004ACE42 /* Article web view */ = {
+			isa = PBXGroup;
+			children = (
+				BC8F9FA01A08120D004ACE42 /* ArticleWebVC.swift */,
+				BC8F9FA11A08120D004ACE42 /* ArticleWebVC.xib */,
+			);
+			name = "Article web view";
+			path = ..;
+			sourceTree = "<group>";
+		};
 		BCA627C619E4667400273DC6 /* Interface */ = {
 			isa = PBXGroup;
 			children = (
 				BCB864A119F9335000AAD5CA /* Feed list */,
 				BCF81BE519D0AA5A009C9092 /* FeedAdderVC.swift */,
 				BCB864A219F9336900AAD5CA /* Article list */,
+				BC8F9FA41A084F0F004ACE42 /* Article web view */,
 				BCC3476919CB48E10058823E /* LaunchScreen.xib */,
 			);
 			name = Interface;
@@ -306,6 +321,7 @@
 				BCB864A419F9338200AAD5CA /* ArticleListCell.xib in Resources */,
 				BCE9485919F1D9AD002FC404 /* FeedListCell.xib in Resources */,
 				BC59D0FC19E6FC14008B6D30 /* TODO in Resources */,
+				BC8F9FA31A08120D004ACE42 /* ArticleWebVC.xib in Resources */,
 				BC557D0A1A0183FE00136D31 /* ArticleListSmallCell.xib in Resources */,
 				BC50263119FA1CE70002233A /* news.png in Resources */,
 				BCC3476B19CB48E10058823E /* LaunchScreen.xib in Resources */,
@@ -337,6 +353,7 @@
 				BCDE3C0219DA39700018B268 /* Article.swift in Sources */,
 				BC9B6BB019D1FAD400D0E0D2 /* FeedListVC.swift in Sources */,
 				BCA627C519E4666A00273DC6 /* ArticleListVC.swift in Sources */,
+				BC8F9FA21A08120D004ACE42 /* ArticleWebVC.swift in Sources */,
 				BCE9485319F1D715002FC404 /* FeedListCell.swift in Sources */,
 				BC59D10019E7862A008B6D30 /* Manager.swift in Sources */,
 				BC50262F19FA1C540002233A /* UIImage+WhiteImage.m in Sources */,

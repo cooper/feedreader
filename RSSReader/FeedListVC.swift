@@ -67,6 +67,7 @@ class FeedListVC: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        //FIXME: doesn't work.
         swap(&group.mutableFeeds[sourceIndexPath.row], &group.mutableFeeds[destinationIndexPath.row])
     }
     
@@ -129,8 +130,7 @@ class FeedListVC: UITableViewController {
         artVC.collection = collection
         self.navigationController?.pushViewController(artVC, animated: true)
     }
-    
-    
+        
     func addButtonTapped(sender: AnyObject) {
         let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
         

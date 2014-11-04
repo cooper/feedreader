@@ -28,11 +28,11 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     }
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return sortedArticles.count//1
+        return sortedArticles.count
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1//sortedArticles.count
+        return 1
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -86,17 +86,12 @@ class ArticleListVC: UITableViewController, UITableViewDataSource {
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let article = sortedArticles[indexPath.section]
         
-        // create a view controller with a webview.
-        let vc = UIViewController(nibName: nil, bundle: nil)
-        let webView = UIWebView()
-        webView.autoresizingMask = .FlexibleWidth | .FlexibleHeight
-        vc.view = webView
-        vc.navigationItem.title = article.title
-        vc.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Action, target: self, action: "presentAction:")
-        
+        // create an article web view controller.
+        let webVC = ArticleWebVC(nibName: "ArticleWebVC", bundle: nil)
+
         // navigate it to it, then load the URL.
-        rss.navigationController.pushViewController(vc, animated: true)
-        webView.loadRequest(NSURLRequest(URL: article.url))
+        webVC.article = article
+        rss.navigationController.pushViewController(webVC, animated: true)
         
     }
     
