@@ -11,10 +11,6 @@ import CoreData
 
 let defaultImage = UIImage(named: "news.png")!
 
-//
-// this class must inherit from NSObject because it complies with
-// an Objective-C protocol (NSXMLParserDelegate)
-//
 class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // MARK:- Feed properties
@@ -28,6 +24,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     @NSManaged var urlString: String
     
     var url: NSURL { return NSURL(string: urlString)! }
+    
     
     // Articles
     //
@@ -60,6 +57,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     lazy var mutableArticles: NSMutableOrderedSet = {
         return self.mutableOrderedSetValueForKey("managedArticles")
     }()
+    
     
     // Groups
     //
@@ -119,6 +117,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
         return defaultImage
     }()
 
+    
     // MARK:- Non-persistent state properties
     
     var shouldFetchIcon = false     // whether it's necessary to fetch icon
@@ -131,6 +130,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     override var description: String {
         return "Feed \(url.absoluteString!)"
     }
+    
     
     // MARK:- Feed methods
 
@@ -233,10 +233,12 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
         fetchImage(logoUrlString, shouldFetchLogo) {
             data, image in
             self.logoData = data
+            self.logo = image
         }
         fetchImage(iconUrlString, shouldFetchIcon) {
             data, image in
             self.iconData = data
+            self.icon = image
         }
     }
     

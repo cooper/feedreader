@@ -36,7 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // set up interface.
         window = UIWindow(frame: UIScreen.mainScreen().bounds)
-        currentFeedVC = FeedListVC(group: defaultGroup)
+        currentFeedVC = FeedDefaultVC(group: defaultGroup)
         navigationController = UINavigationController(rootViewController: currentFeedVC!)
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
