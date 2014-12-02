@@ -7,23 +7,17 @@
 //
 
 import UIKit
+import CoreData
 
 class FeedListVC: UITableViewController {
     private var _textField : UITextField?
-    let group: FeedGroup
-    
-    init(group _group: FeedGroup) {
-        group = _group
-        super.init(nibName: nil, bundle: nil)
-    }
- 
-    required init(coder aDecoder: NSCoder) {
-        //let dict = aDecoder.decodeObjectForKey("group") as [String: AnyObject]
-        group = FeedGroup()
-        //group.addFeedsFromStorage(dict)
-        super.init(coder: aDecoder)
-    }
+    var group: FeedGroup!
 
+    convenience init(group: FeedGroup) {
+        self.init()
+        self.group = group
+    }
+    
     override func viewDidLoad() {
         self.navigationItem.title = group.title
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
@@ -54,10 +48,11 @@ class FeedListVC: UITableViewController {
         switch editingStyle {
             
             case .Delete:
-                let feed = group.feeds.removeAtIndex(indexPath.row)
+                
+                let feed = group.managedFeeds[indexPath.row] as Feed
+                group.mutableFeeds.removeObject(feed)
                 rss.manager.removeFeed(feed)
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
-                rss.saveChanges()
 
             // case .Insert:
             // case .None:
@@ -72,8 +67,8 @@ class FeedListVC: UITableViewController {
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
-        swap(&group.feeds[sourceIndexPath.row + 1], &group.feeds[destinationIndexPath.row + 1])
-        rss.saveChanges()
+        //FIXME: doesn't work.
+        swap(&group.mutableFeeds[sourceIndexPath.row], &group.mutableFeeds[destinationIndexPath.row])
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -135,8 +130,7 @@ class FeedListVC: UITableViewController {
         artVC.collection = collection
         self.navigationController?.pushViewController(artVC, animated: true)
     }
-    
-    
+        
     func addButtonTapped(sender: AnyObject) {
         let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
         
@@ -162,14 +156,12 @@ class FeedListVC: UITableViewController {
             }
             
             // create and add the feed.
-            let newFeed = Feed(urlString: string)
-            rss.manager.addFeed(newFeed)
+            let newFeed = rss.manager.newFeedWithUrlString(string)
             self.group.addFeed(newFeed)
         
             // fetch feed, update the table, save to database.
             newFeed.fetch()
             self.tableView.reloadData()
-            rss.saveChanges()
             
             return
         }
