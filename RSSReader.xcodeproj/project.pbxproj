@@ -183,15 +183,13 @@
 			children = (
 				BC557D401A0193A000136D31 /* RSSReader.xcdatamodeld */,
 				BCC3475E19CB48E10058823E /* AppDelegate.swift */,
-				BCCC9F121A2D43FD00283400 /* Extensions */,
 				BCD6591319DA4BEC00D6176A /* RSS */,
 				BCA627C619E4667400273DC6 /* Interface */,
 				BCC3476719CB48E10058823E /* Images.xcassets */,
 				BC50263019FA1CE70002233A /* news.png */,
-				BCD0FC4319FA1377004B3DE7 /* Objective-C */,
+				BCCC9F121A2D43FD00283400 /* Extensions */,
 				BCC3475C19CB48E10058823E /* Supporting Files */,
 				BC59D0FB19E6FC14008B6D30 /* TODO */,
-				BCD0FC3F19FA136F004B3DE7 /* RSSReader-Bridging-Header.h */,
 			);
 			path = RSSReader;
 			sourceTree = "<group>";
@@ -229,17 +227,11 @@
 				BCB8649F19F9328000AAD5CA /* DateAdditions.swift */,
 				BCCC9F151A2D443400283400 /* StringAdditions.swift */,
 				BCCC9F131A2D441100283400 /* UIImageAdditions.swift */,
-			);
-			name = Extensions;
-			sourceTree = "<group>";
-		};
-		BCD0FC4319FA1377004B3DE7 /* Objective-C */ = {
-			isa = PBXGroup;
-			children = (
 				BC50262D19FA1C540002233A /* UIImage+WhiteImage.h */,
 				BC50262E19FA1C540002233A /* UIImage+WhiteImage.m */,
+				BCD0FC3F19FA136F004B3DE7 /* RSSReader-Bridging-Header.h */,
 			);
-			name = "Objective-C";
+			name = Extensions;
 			sourceTree = "<group>";
 		};
 		BCD6591319DA4BEC00D6176A /* RSS */ = {
