@@ -7,46 +7,28 @@
 //
 
 import Foundation
+import CoreData
 
-class FeedGroup: ArticleCollection {
-    var feeds = [Feed]()
-    var title = "(Unnamed)"
-    var isDefault = false
-
-    convenience init(feeds: [Feed]) {
-        self.init()
-        self.feeds = feeds
-    }
+class FeedGroup: NSManagedObject, ArticleCollection, Printable {
     
-    convenience init(title: String) {
-        self.init()
-        self.title = title
-    }
+    @NSManaged var managedTitle: String
+    var title: String { return managedTitle }
     
-    convenience init(storage: NSDictionary) {
-        self.init()
-        addFeedsFromStorage(storage)
-    }
+    @NSManaged var managedFeeds: NSOrderedSet
+    var feeds: [Feed] { return managedFeeds.array as [Feed] }
+    lazy var mutableFeeds: NSMutableOrderedSet = {
+        return self.mutableOrderedSetValueForKey("managedFeeds")
+    }()
     
-    // add feeds from storage to the group.
-    // this should be called after the feeds themselves have been loaded from storage.
-    // this method only grabs the feeds from their indices and adds them to the group.
-    func addFeedsFromStorage(storage: NSDictionary) {
-        
-        // group name.
-        title = storage["title"] as String
-        
-        // add each feed from storage.
-        let feedsStored = storage["feeds"] as [Int]
-        for feedIndex in feedsStored {
-            let feed = rss.manager.feeds[feedIndex]
-            addFeed(feed)
-        }
-        
+    @NSManaged var isDefault: Bool
+    
+    override var description: String {
+        return "Group \(title)"
     }
     
     func addFeed(feed: Feed) {
-        feeds.append(feed)
+        println("[\(title)] Added \(feed.title)")
+        mutableFeeds.addObject(feed)
     }
 
     // MARK:- Article collection
@@ -82,21 +64,6 @@ class FeedGroup: ArticleCollection {
         for feed in feeds {
             feed.fetchThen(then)
         }
-    }
-    
-    // MARK:- Storage
-    
-    // NSDictionary representing the group.
-    // feeds are represented as an array of indices in the manager.
-    var forStorage: NSDictionary {
-        
-        // find the index of each feed in the manager.
-        let feedIndices = feeds.map { $0.index }
-        
-        return [
-            "title":    title,
-            "feeds":    feedIndices
-        ]
     }
     
 }

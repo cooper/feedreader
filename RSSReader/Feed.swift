@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 let defaultImage = UIImage(named: "news.png")!
 
@@ -14,91 +15,131 @@ let defaultImage = UIImage(named: "news.png")!
 // this class must inherit from NSObject because it complies with
 // an Objective-C protocol (NSXMLParserDelegate)
 //
-class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
+class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
-    // MARK:- Feed details
-    //                                                                              Stored
+    // MARK:- Feed properties
     
-    let url: NSURL;                         // the URL of the feed                     (S)
-    var articles = [Article]()              // articles in the feed                    (S)
-    var articlesById = [String: Article]()  // articles by identifier                  (S)
-    var channelTitle: String?               // actual title from the feed              (S)
-    var userSetTitle: String?               // nickname assigned by user               (S)
+    // URL
+    //
+    // urlString is persistent. URLs cannot be stored in Core Data.
+    // Therefore, url is a computed URL value of the urlString.
+    //
     
-    // best title option available.
+    @NSManaged var urlString: String
+    
+    var url: NSURL { return NSURL(string: urlString)! }
+    
+    // Articles
+    //
+    // managedArticles represents the ordered set
+    // managed by Core Data.
+    //
+    // mutableArticles is the mutable ordered set.
+    //
+    // articles, however, is a pure-Swift array of
+    // articles which is useful for iteration and such.
+    //
+    // articlesById is a computed property which makes
+    // it easier to determine which articles exist already,
+    // based on their URL string.
+    //
+    @NSManaged var managedArticles: NSOrderedSet
+    
+    var articles: [Article] {
+        return self.managedArticles.array as [Article]
+    }
+    
+    var articlesById: [String: Article] {
+        var byId = [String: Article]()
+        for article in articles {
+            byId[article.identifier] = article
+        }
+        return byId
+    }
+    
+    lazy var mutableArticles: NSMutableOrderedSet = {
+        return self.mutableOrderedSetValueForKey("managedArticles")
+    }()
+    
+    // Groups
+    //
+    // this property is not necessarily used, but it represents the
+    // inverse of the FeedGroup.feeds relationship.
+    //
+    
+    @NSManaged var managedGroups: NSSet
+    
+    // Titles
+    //
+    // channelTitle represents the title assigned by the feed itself.
+    // userSetTitle represents the title set by the user, or nickname.
+    // Both properties are persistent.
+    //
+    // title chooses the best possible title available, the first that exists of:
+    //      user set title,
+    //      channel-set title,
+    //      feed URL string
+    //
+    
+    @NSManaged var channelTitle: String?    // actual title from the feed
+    @NSManaged var userSetTitle: String?    // nickname assigned by user
+    
     var title: String { return userSetTitle ?? channelTitle ?? url.absoluteString! }
+
+
+    // Images
+    //
+    // iconUrlString and logoUrlString are persistent and set by the feed itself.
+    //
+    // logoData and iconData are also persistent and are the stored data which
+    // may have been downloaded after the feed was fetched a previous time.
+    //
+    // logo and icon are lazy variables which will be computed after the feed is
+    // retrieved from Core Data, but they will also be re-set again later if the
+    // images are downloaded and have been modified.
+    //
     
-    // index in feed manager.
-    var index: Int { return find(rss.manager.feeds, self)! }
+    @NSManaged var iconUrlString: String?   // URL of icon representing of the feed
+    @NSManaged var logoUrlString: String?   // URL of logo representing of the feed
+    
+    @NSManaged var logoData: NSData?        // data representing the logo
+    @NSManaged var iconData: NSData?        // data representing the icon
+    
+    lazy var logo: UIImage = {
+        if let data = self.logoData {
+            return UIImage(data: data)!
+        }
+        return defaultImage
+    }()
+    
+    lazy var icon: UIImage = {
+        if let data = self.iconData {
+            return UIImage(data: data)!
+        }
+        return defaultImage
+    }()
+
+    // MARK:- Non-persistent state properties
+    
+    var shouldFetchIcon = false     // whether it's necessary to fetch icon
+    var shouldFetchLogo = false     // whether it's necessary to fetch logo
     
     var loading = false                     // is it being fetched now?
     weak var currentGroup: FeedGroup?       // current feed group in user interface
-    
-    // icon and logo.                       // for atom:
-    var logo = defaultImage                 // ideally 1:1 ratio (small size)          (S)
-    var icon = defaultImage                 // ideally 2:1 ratio (a bit bigger)        (S)
-                                            // for RSS: the two are equivalent, size any.
-    var iconURLString: String?              // URL of image representing of the feed   (S)
-    var logoURLString: String?              // URL of image representing of the feed   (S)
-    private var shouldFetchIcon = false     // whether it's necessary to fetch icon
-    private var shouldFetchLogo = false     // whether it's necessary to fetch logo
-    
-    // MARK:- Feed methods
     
     // printable description
     override var description: String {
         return "Feed \(url.absoluteString!)"
     }
     
-    init(url feedUrl: NSURL) {
-        url = feedUrl
-    }
-    
-    convenience init(urlString: String) {
-        let feedUrl = NSURL(string: urlString)!
-        self.init(url: feedUrl)
-    }
-    
-    convenience init(storage: NSDictionary) {
-        self.init(urlString: storage["urlString"]! as String)
-        
-        // these are all optional strings.
-        // I did this because I like inout.
-        func setMaybe(inout target: String?, name: String) {
-            target = storage[name] as? String
-        }
-        setMaybe(&userSetTitle,  "userSetTitle")
-        setMaybe(&channelTitle,  "channelTitle")
-        setMaybe(&iconURLString, "iconURLString")
-        setMaybe(&logoURLString, "logoURLString")
-        
-        // images.
-        if let iconData = storage["icon"] as? NSData {
-            icon = UIImage(data: iconData)!
-        }
-        if let logoData = storage["logo"] as? NSData {
-            logo = UIImage(data: logoData)!
-        }
-        
-        // add articles.
-        for articleDict in storage["articles"]! as [NSDictionary] {
-            let article = Article(feed: self, storage: articleDict)
-            addArticle(article)
-        }
-        
-    }
-    
+    // MARK:- Feed methods
+
     // add an article to the feed, remembering it by both index and identifier.
     func addArticle(article: Article) {
-        articlesById[article.identifier] = article
 
         // this one already exists; update it.
         if articlesById[article.identifier] != nil {
-            articlesById[article.identifier] = article
-            if let index = find(articles, article) {
-                articles[index] = article
-                return
-            }
+            mutableArticles.removeObject(article)
         }
         
         // FIXME: I'm not sure that this even works.
@@ -107,15 +148,14 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // the article being added is more recent.
             if art.publishDate.laterDate(article.publishDate) == article.publishDate {
-                articles.insert(article, atIndex: i)
+                mutableArticles.insertObject(article, atIndex: i)
                 return
             }
             
         }
         
         // may not have been added if it's the oldest one.
-        articles.append(article)
-
+        mutableArticles.addObject(article)
         
     }
     
@@ -137,12 +177,9 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                 return
             }
             
-            // FIXME: is it possible for this to fail?
-            let parser = NSXMLParser(data: data)
-            parser.delegate = self
-            
             // initiate XML parser in this same queue.
             //NSLog("Parsing the data")
+            let parser = XMLParser(feed: self, data: data)
             parser.parse()
             rss.currentFeedVC?.tableView.reloadData()
 
@@ -159,7 +196,7 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
         }
     }
     
-    func fetchImage(urlString: String!, _ doIt: Bool, handler: (UIImage) -> Void) {
+    func fetchImage(urlString: String!, _ doIt: Bool, handler: (NSData, UIImage) -> Void) {
         
         // no image URL specified.
         if urlString == nil || !doIt { return }
@@ -175,8 +212,11 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
                 return
             }
             
+            // create UIImage, remove white background, if any, then
+            // convert back to binary data for storage in Core Data.
             // apparently working with UIImage is threadsafe now.
-            handler(UIImage(data: data)!.withoutWhiteBackground)
+            let image = UIImage(data: data)!.withoutWhiteBackground
+            handler(image.pngRepresentation!, image)
             
             // reload the table in the main queue, if there is one visible.
             mainQueue {
@@ -190,277 +230,19 @@ class Feed: NSObject, Printable, ArticleCollection, NSXMLParserDelegate {
     
     // download the image, then optionally reload a table view.
     func downloadImages() {
-        fetchImage(logoURLString, shouldFetchLogo) { self.logo = $0 }
-        fetchImage(iconURLString, shouldFetchIcon) { self.icon = $0 }
+        fetchImage(logoUrlString, shouldFetchLogo) {
+            data, image in
+            self.logoData = data
+        }
+        fetchImage(iconUrlString, shouldFetchIcon) {
+            data, image in
+            self.iconData = data
+        }
     }
     
     // convenience for fetching with no callback.
     func fetch() {
         fetchThen(nil)
-    }
-
-    // MARK:- XML parser state
-    
-    // this class represents a single specific XML element.
-    // its purpose is to create a hierarchy of elements.
-    class Element {
-        
-        // these are the element types recognized by this RSS/Atom parser.
-        enum Kind {
-            
-                                // Description                  RSS                 Atom
-                                // --------------               ------              -------
-
-            case None           // No element (main scope)      n/a                 n/a
-            case Unknown        // Unknown element type         n/a                 n/a
-            
-            case FeedTitle      // title of the feed            <title>             <title>
-            case FeedImage      // image for feed               <image>             n/a
-            case FeedIconURL    // feed image URL               <url>               <icon>
-            case FeedLogoURL    // feed image URL               <url>               <logo>
-            case Channel        // RSS feed channel             <channel>           <feed>
-            case Link           // URL for feed                 <link>              <link>
-            
-            case Item           // an item or article           <item>              <entry>
-            case ItemTitle      // title of an item             <title>             <title>
-            case ItemId         // identifier of item           <guid>              <id>
-            case ItemDesc       // description of item          <description>       <summary>
-            case ItemPubDate    // date of item publish         <pubDate>           <published>
-            
-        }
-        
-        // type of the element and its parent, if any.
-        var type = Kind.None
-        var parent: Element?
-        
-        // initialize with a type.
-        convenience init(kind: Kind) {
-            self.init()
-            type = kind
-        }
-        
-    }
-    
-    // current article and element while parsing.
-    var article : Article?
-    var element = Element()
-    
-    // open an element as a child of the current element.
-    func adoptNewElement(type: Element.Kind) {
-        let old = element
-        element = Element(kind: type)
-        element.parent = old
-    }
-    
-    // close the current element.
-    func closeElement() {
-        element = element.parent ?? Element()
-    }
-    
-    // convenience for assigning/fetching.
-    var elementType: Element.Kind {
-        set { adoptNewElement(newValue) }
-        get { return element.type       }
-    }
-    
-    struct current {
-        static var itemPublishedDate = ""
-    }
-    
-    // MARK:- XML parsing
-    
-    func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [NSObject : AnyObject]) {
-        let attributes = attributeDict as [String: String]
-        NSLog("Starting element: \(elementName)")
-        
-        switch elementName {
-            
-            case "channel", "feed":
-                elementType = .Channel
-            
-            // if there's an article, this is its title.
-            case "title" where element.type == .Item && article != nil:
-                elementType = .ItemTitle
-                article?.title = ""
-            
-            // otherwise, this is the feed title.
-            case "title" where element.type == .Channel:
-                elementType = .FeedTitle
-            
-            // the start of an article.
-            case "item", "entry":
-                article = Article(feed: self)
-                elementType = .Item
-
-            // link of an article.
-            case "link" where element.type == .Item && article != nil:
-                elementType = .Link
-
-                switch attributes["rel"] ?? "alternate" {
-                    
-                    // edit link.
-                    case "edit":
-                        NSLog("Edit")
-                    
-                    // the main link.
-                    case "alternate" where attributes["href"] != nil:
-                        article!.urlString = attributes["href"]
-                    
-                    // some other.
-                    default:
-                        break
-                    
-                }
-            
-            // image of an article (RSS).
-            case "image" where element.type == .Channel:
-                elementType = .FeedImage
-            
-            // feed logo URL (RSS = url, Atom = logo).
-            case "url" where element.type == .FeedImage,
-                "logo" where element.type == .Channel:
-                
-                elementType = .FeedLogoURL
-            
-            // feed icon URL (Atom only).
-            case "icon" where element.type == .Channel:
-                
-                elementType = .FeedIconURL
-            
-            // identifier for an article or item.
-            case "guid" where element.type == .Item,
-                 "id"   where element.type == .Item:
-                
-                elementType = .ItemId
-            
-            // item description.
-            case "description" where element.type == .Item,
-                 "summary"     where element.type == .Item:
-                
-                elementType = .ItemDesc
-                article?.rawSummary = ""
-            
-            // item publish date.
-            case "pubDate"   where element.type == .Item,
-                 "published" where element.type == .Item:
-                
-                elementType = .ItemPubDate
-                current.itemPublishedDate = ""
-            
-            // some other element that we do not handle.
-            default:
-                //NSLog("Unkown element \(elementName)")
-                elementType = .Unknown
-            
-        }
-
-    }
-    
-    // found some characters that are not part of an element.
-    // note: it seems that this will be called several times with the data in pieces
-    // if the any of the characters are encoded with entities like &gt; etc.
-    func parser(parser: NSXMLParser, foundCharacters string: String) {
-        switch element.type {
-            
-            // the title of the feed.
-            case .FeedTitle:
-                channelTitle = string
-            
-            // the title of an article.
-            case .ItemTitle:
-                article?.title? += string
-                NSLog("adding to title: \(string)")
-            
-            // in RSS, the link is within <link> tags (handled here).
-            // in Atom, the link is in the href attribute.
-            case .Link:
-                article?.urlString = string
-
-            // icon for the feed.
-            case .FeedIconURL:
-                shouldFetchIcon = icon == defaultImage || string != iconURLString
-                iconURLString   = string
-            
-            // logo for the feed.
-            case .FeedLogoURL:
-                shouldFetchLogo = logo == defaultImage || string != logoURLString
-                logoURLString   = string
-            
-            // item identifier.
-            case .ItemId:
-                article?._identifier = string
-            
-            // item description.
-            case .ItemDesc:
-                article?.rawSummary += string
-            
-            case .ItemPubDate:
-                current.itemPublishedDate += string
-            
-            // some other element...
-            default:
-                
-                break
-            
-        }
-    }
-
-    //func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String, qualifiedName qName: String) {
-    func parser(parser: NSXMLParser, didEndElement elementName: String!, namespaceURI: String!, qualifiedName qName: String!) {
-        switch element.type {
-            
-            case .Channel:
-                iconURLString = iconURLString ?? logoURLString
-            
-            // add the current article to the feed.
-            // addArticle() MUST be called after the identifier (if any) has been determined.
-            case .Item:
-                addArticle(article!)
-                article = nil
-            
-            case .ItemPubDate:
-                article!.publishDate =
-                    NSDate.fromInternetString(current.itemPublishedDate) ??
-                    article!.publishDate
-            
-            default:
-                break
-            
-        }
-        closeElement()
-    }
-    
-    // returns NSDictionary because it will be converted to such anyway.
-    var forStorage: NSDictionary {
-        
-        // note: URLs can be stored in user defaults
-        /// but apparently not inside of a collection
-        
-        // articles are stored as an array, but when they are added back to
-        // the feed, they are stored in RAM by identifier as well.
-        let dict: NSMutableDictionary = [
-            "urlString":    url.absoluteString!,
-            "articles":     articles.map { $0.forStorage }
-        ]
-
-        let logoData = logo == defaultImage ? nil : logo.pngRepresentation
-        let iconData = icon == defaultImage ? nil : icon.pngRepresentation
-        
-        // these optionals should be left out if not present.
-        let optionals: [String : AnyObject?] = [
-            "channelTitle":     channelTitle,
-            "userSetTitle":     userSetTitle,
-            "iconURLString":    iconURLString,
-            "logoURLString":    logoURLString,
-            "logo":             logoData,
-            "icon":             iconData
-        ]
-        for (key, value) in optionals {
-            if value == nil { continue }
-            dict[key] = value!
-        }
-
-        return dict
     }
     
 }
