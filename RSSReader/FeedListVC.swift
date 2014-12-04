@@ -39,9 +39,16 @@ class FeedListVC: UITableViewController {
         return 70
     }
 
-    // all rows are editable.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return true
+    // the "all articles" button cannot be moved.
+    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return indexPath.section != 0
+    }
+    
+    // this is to prevent things from being moved between sections.
+    override func tableView(tableView: UITableView, targetIndexPathForMoveFromRowAtIndexPath sourceIndexPath: NSIndexPath, toProposedIndexPath proposedDestinationIndexPath: NSIndexPath) -> NSIndexPath {
+        return sourceIndexPath.section == proposedDestinationIndexPath.section  ?
+            proposedDestinationIndexPath                                        :
+            sourceIndexPath
     }
     
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
@@ -61,11 +68,7 @@ class FeedListVC: UITableViewController {
                 break
         }
     }
-    
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return indexPath.section != 0
-    }
-    
+
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         //FIXME: doesn't work.
         swap(&group.mutableFeeds[sourceIndexPath.row], &group.mutableFeeds[destinationIndexPath.row])

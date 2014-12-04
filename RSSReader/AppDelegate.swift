@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // load data.
         manager.loadFromCoreData()
-        NSLog("groups: \(manager.groups)")
+        NSLog("groups: \(manager.groups.map { $0.title })")
         manager.fetchAllFeeds()
         
         defaultGroup = manager.defaultGroup ?? manager.newGroupTitled("Default")
@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
         
-        return true;
+        return true
     }
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {

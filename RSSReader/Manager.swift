@@ -42,6 +42,10 @@ class Manager {
         return nil
     }
     
+    var notDefaultGroups: [FeedGroup] {
+        return groups.filter { $0 != self.defaultGroup }
+    }
+    
     // remove a feed.
     // I don't really like this because it's not very efficient.
     // an alternate solution is to cast to NSArray and then removeObject:.
@@ -148,7 +152,7 @@ class Manager {
         request.sortDescriptors = [ NSSortDescriptor(key: "index", ascending: true) ]
         var anyError: NSError?
         let fetched = context.executeFetchRequest(request, error: &anyError) as? [Feed]
-        NSLog("fetched: \(fetched?.map{ $0.title })")
+        NSLog("fetched feeds: \(fetched?.map{ $0.title })")
         
         if fetched == nil {
             NSLog("Error fetching: \(anyError)")
@@ -163,7 +167,7 @@ class Manager {
         let request = NSFetchRequest(entityName: "FeedGroup")
         var anyError: NSError?
         let fetched = context.executeFetchRequest(request, error: &anyError) as? [FeedGroup]
-        
+        println("fetched groups: \(fetched?.map{ $0.title })")
         if fetched == nil {
             NSLog("Error fetching: \(anyError)")
             fatalError("Core Data: Fetching groups failed.")

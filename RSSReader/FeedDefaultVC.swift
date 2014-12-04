@@ -20,11 +20,19 @@ class FeedDefaultVC: FeedListVC {
     // MARK:- Table view source
     
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 2
+        return 3
     }
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 1 : group.feeds.count
+        // 0 = all articles button
+        // 1 = group list
+        // 2 = feeds in default group
+        switch section {
+            case 0:  return 1
+            case 1:  return rss.manager.notDefaultGroups.count
+            case 2:  return group.feeds.count
+            default: return 0
+        }
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -49,43 +57,29 @@ class FeedDefaultVC: FeedListVC {
         }
     }
     
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return indexPath.section != 0
-    }
-    
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         //FIXME: doesn't work.
         swap(&group.mutableFeeds[sourceIndexPath.row], &group.mutableFeeds[destinationIndexPath.row])
     }
     
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        
-        // this is the top cell.
-        if indexPath.section == 0 {
-            let cell = UITableViewCell(style: .Default, reuseIdentifier: nil)
-            cell.textLabel.text = "All articles"
-            cell.accessoryType = .DisclosureIndicator
-            return cell
+        // 0 = all articles button
+        // 1 = group list
+        // 2 = feeds in default group
+        switch indexPath.section {
+            case 0:  return super.tableView(tableView, cellForRowAtIndexPath: indexPath)
+            case 1:  return cellForGroupAtRow(indexPath.row)
+            case 2:
+                let path = NSIndexPath(forRow: indexPath.row, inSection: 1)
+                return super.tableView(tableView, cellForRowAtIndexPath: path)
+            default: return UITableViewCell()
         }
-        
-        // first, try to dequeue a cell.
-        var cell: FeedListCell
-        if let cellMaybe = tableView.dequeueReusableCellWithIdentifier("feed") as? FeedListCell {
-            cell = cellMaybe
-        }
-        
-        // create a new cell.
-        else {
-            let items = NSBundle.mainBundle().loadNibNamed("FeedListCell", owner: self, options: nil)
-            cell = items[0] as FeedListCell
-            cell.accessoryType = .DisclosureIndicator
-        }
-        
-        let feed            = group.feeds[indexPath.row]
-        cell.label.text     = feed.loading ? "Loading..." : feed.title
-        cell.iconView.image = feed.logo
-        cell.iconView.sizeToFit()
-        
+    }
+    
+    func cellForGroupAtRow(row: NSInteger) -> UITableViewCell {
+        let group = rss.manager.notDefaultGroups[row]
+        let cell = UITableViewCell()
+        cell.textLabel.text = group.title
         return cell
     }
     
