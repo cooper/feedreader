@@ -138,7 +138,9 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
     func addArticle(article: Article) {
 
         // this one already exists; update it.
+        NSLog("looking for ID \(article.identifier)")
         if articlesById[article.identifier] != nil {
+            NSLog("exists")
             mutableArticles.removeObject(article)
         }
         
@@ -181,14 +183,13 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
             //NSLog("Parsing the data")
             let parser = XMLParser(feed: self, data: data)
             parser.parse()
-            rss.currentFeedVC?.tableView.reloadData()
 
             // download logo/icon.
             self.downloadImages()
             
-            // in the main queue, reload the table, then call callback.
+            // in the main queue, update UI and call callback.
             mainQueue {
-                rss.currentFeedVC?.tableView.reloadData()
+                self.reloadCells()
                 then?()
             }
             
@@ -220,7 +221,7 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
             
             // reload the table in the main queue, if there is one visible.
             mainQueue {
-                rss.currentFeedVC?.tableView.reloadData()
+                self.reloadCells()
                 return
             }
             
@@ -239,6 +240,15 @@ class Feed: NSManagedObject, Printable, ArticleCollection, NSXMLParserDelegate {
             data, image in
             self.iconData = data
             self.icon = image
+        }
+    }
+    
+    // reload the visible cells associated with the feed, if any.
+    func reloadCells() {
+        if let feedVC = rss.currentFeedVC {
+            let path = NSIndexPath(forRow: find(feedVC.group.feeds, self)!, inSection: feedVC.secFeedList)
+            NSLog("path: \(path)")
+            feedVC.tableView.reloadRowsAtIndexPaths([path], withRowAnimation: .Automatic)
         }
     }
     

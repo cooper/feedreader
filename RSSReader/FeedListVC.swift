@@ -12,7 +12,10 @@ import CoreData
 class FeedListVC: UITableViewController {
     private var _textField : UITextField?
     var group: FeedGroup!
-
+    
+    var secAllArticles: Int { return 0 }
+    var secFeedList:    Int { return 1 }
+    
     convenience init(group: FeedGroup) {
         self.init()
         self.group = group
@@ -20,7 +23,7 @@ class FeedListVC: UITableViewController {
     
     override func viewDidLoad() {
         self.navigationItem.title = group.title
-        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addButtonTapped:")
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "presentFeedCreator:")
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
     }
     
@@ -32,16 +35,20 @@ class FeedListVC: UITableViewController {
     
     
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return section == 0 ? 1 : group.feeds.count
+        return section == secAllArticles ? 1 : group.feeds.count
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         return 70
     }
+    
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return indexPath.section != secAllArticles
+    }
 
     // the "all articles" button cannot be moved.
     override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        return indexPath.section != 0
+        return indexPath.section != secAllArticles
     }
     
     // this is to prevent things from being moved between sections.
@@ -77,7 +84,7 @@ class FeedListVC: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         // this is the top cell.
-        if indexPath.section == 0 {
+        if indexPath.section == secAllArticles {
             let cell = UITableViewCell(style: .Default, reuseIdentifier: nil)
             cell.textLabel.text = "All articles"
             cell.accessoryType = .DisclosureIndicator
@@ -108,8 +115,8 @@ class FeedListVC: UITableViewController {
     // user selected a feed.
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        // group.
-        if indexPath.section == 0 {
+        // all articles.
+        if indexPath.section == secAllArticles {
             pushArticleViewToCollection(group)
             return
         }
@@ -118,7 +125,7 @@ class FeedListVC: UITableViewController {
         let feed = group.feeds[indexPath.row]
         
         // no articles; fetch them
-        if feed.articles.count == 0 {
+        if feed.articles.isEmpty {
             feed.fetch()
         }
     
@@ -134,7 +141,7 @@ class FeedListVC: UITableViewController {
         self.navigationController?.pushViewController(artVC, animated: true)
     }
         
-    func addButtonTapped(sender: AnyObject) {
+    func presentFeedCreator(sender: AnyObject) {
         let alert = UIAlertController(title: "Add feed", message: nil, preferredStyle: .Alert)
         
         // text field.
@@ -149,7 +156,7 @@ class FeedListVC: UITableViewController {
             // empty string?
             let string = self._textField!.text!
             self._textField = nil
-            if countElements(string) < 1 { return }
+            if string.isEmpty { return }
             
             // does the feed exist already? reload it.
             if let feed = rss.manager.feedFromURLString(string) {
@@ -175,5 +182,10 @@ class FeedListVC: UITableViewController {
         self.presentViewController(alert, animated: true, completion: nil)
         
     }
-        
+    
+    func pushFeedViewForGroup(group: FeedGroup) {
+        let feedVC = FeedListVC(group: group)
+        rss.navigationController.pushViewController(feedVC, animated: true)
+    }
+    
 }

@@ -10,7 +10,12 @@ import UIKit
 import CoreData
 
 class FeedDefaultVC: FeedListVC {
+    private var _textField : UITextField?
 
+    override var secAllArticles: Int { return 0 }
+             var secGroupList:   Int { return 1 }
+    override var secFeedList:    Int { return 2 }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.title = "Feeds"
@@ -28,11 +33,12 @@ class FeedDefaultVC: FeedListVC {
         // 1 = group list
         // 2 = feeds in default group
         switch section {
-            case 0:  return 1
-            case 1:  return rss.manager.notDefaultGroups.count
-            case 2:  return group.feeds.count
+            case secAllArticles: return 1
+            case secGroupList:   return rss.manager.notDefaultGroups.count
+            case secFeedList:    return group.feeds.count
             default: return 0
         }
+        
     }
     
     override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
@@ -40,21 +46,40 @@ class FeedDefaultVC: FeedListVC {
     }
     
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        switch editingStyle {
+        switch indexPath.section {
             
-            case .Delete:
-                
-                let feed = group.managedFeeds[indexPath.row] as Feed
-                group.mutableFeeds.removeObject(feed)
-                rss.manager.removeFeed(feed)
-                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+            // group list edit.
+            case secGroupList:
+                return
+            
+            // default group feed list edit.
+            case secFeedList:
+                switch editingStyle {
+                    
+                    case .Delete:
+                        
+                        let feed = group.managedFeeds[indexPath.row] as Feed
+                        group.mutableFeeds.removeObject(feed)
+                        rss.manager.removeFeed(feed)
+                        tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
 
-            // case .Insert:
-            // case .None:
+                    // case .Insert:
+                    // case .None:
+                    
+                    default: break
+                }
             
-            default:
-                break
+            default: break
         }
+    }
+    
+    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return indexPath.section != secAllArticles
+    }
+    
+    // the "all articles" button cannot be moved.
+    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        return indexPath.section != secAllArticles
     }
     
     override func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
@@ -67,9 +92,9 @@ class FeedDefaultVC: FeedListVC {
         // 1 = group list
         // 2 = feeds in default group
         switch indexPath.section {
-            case 0:  return super.tableView(tableView, cellForRowAtIndexPath: indexPath)
-            case 1:  return cellForGroupAtRow(indexPath.row)
-            case 2:
+            case secAllArticles:  return super.tableView(tableView, cellForRowAtIndexPath: indexPath)
+            case secGroupList:    return cellForGroupAtRow(indexPath.row)
+            case secFeedList:
                 let path = NSIndexPath(forRow: indexPath.row, inSection: 1)
                 return super.tableView(tableView, cellForRowAtIndexPath: path)
             default: return UITableViewCell()
@@ -86,13 +111,19 @@ class FeedDefaultVC: FeedListVC {
     // user selected a feed.
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        // group.
-        if indexPath.section == 0 {
+        // show all articles in all groups.
+        if indexPath.section == secAllArticles {
             pushArticleViewToCollection(group)
             return
         }
         
-        // feed.
+        // show feeds in group.
+        if indexPath.section == secGroupList {
+            let group = rss.manager.notDefaultGroups[indexPath.row]
+            return pushFeedViewForGroup(group)
+        }
+        
+        // show articles in feed.
         let feed = group.feeds[indexPath.row]
         
         // no articles; fetch them
@@ -105,18 +136,17 @@ class FeedDefaultVC: FeedListVC {
     
     
     func addButtonTappedTwo(sender: AnyObject) {
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .ActionSheet)
-        
+        let alert = UIAlertController(title: "Create new...", message: nil, preferredStyle: .ActionSheet)
+
         // feed button.
         let action1 = UIAlertAction(title: "Feed", style: .Default) { _ in
-            return self.addButtonTapped(sender)
+            return self.presentFeedCreator(sender)
         }
         alert.addAction(action1)
         
         // group button.
         let action2 = UIAlertAction(title: "Group", style: .Default) { _ in
-            
-            return
+            return self.presentGroupCreator(sender)
         }
         alert.addAction(action2)
         
@@ -127,4 +157,38 @@ class FeedDefaultVC: FeedListVC {
         self.presentViewController(alert, animated: true, completion: nil)
         
     }
+    
+    func presentGroupCreator(sender: AnyObject) {
+        let alert = UIAlertController(title: "Create group", message: nil, preferredStyle: .Alert)
+        
+        // text field.
+        alert.addTextFieldWithConfigurationHandler { textField in
+            self._textField = textField
+            textField.placeholder = "URL"
+        }
+        
+        // OK button.
+        let action = UIAlertAction(title: "OK", style: .Default) { _ in
+            
+            // empty string?
+            let string = self._textField!.text!
+            self._textField = nil
+            if string.isEmpty { return }
+
+            // create the group.
+            let group = rss.manager.newGroupTitled(string)
+            rss.manager.addGroup(group)
+            let path = NSIndexPath(forRow: rss.manager.notDefaultGroups.count - 1, inSection: self.secGroupList)
+            self.tableView.insertRowsAtIndexPaths([path], withRowAnimation: .Automatic)
+            
+            return
+        }
+        alert.addAction(action)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: nil))
+        
+        // present it.
+        self.presentViewController(alert, animated: true, completion: nil)
+        
+    }
+    
 }
