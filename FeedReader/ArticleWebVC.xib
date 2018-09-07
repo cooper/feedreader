@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13529" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13527"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ArticleWebVC" customModule="FeedReader" customModuleProvider="target">
+            <connections>
+                <outlet property="indicator" destination="XEb-CW-Ufr" id="z35-Yw-gWp"/>
+                <outlet property="view" destination="7W5-ve-TEX" id="VME-tE-M19"/>
+                <outlet property="webView" destination="Xoq-PW-KM5" id="KJx-IR-xRy"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="7W5-ve-TEX">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <webView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xoq-PW-KM5">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                </webView>
+                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="XEb-CW-Ufr">
+                    <rect key="frame" x="162.5" y="308.5" width="50" height="50"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="50" id="EPo-XE-HGK"/>
+                        <constraint firstAttribute="height" constant="50" id="iWl-TK-nRa"/>
+                    </constraints>
+                    <color key="color" red="0.19482421875" green="0.19482421875" blue="0.19482421875" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </activityIndicatorView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="centerY" secondItem="XEb-CW-Ufr" secondAttribute="centerY" id="3Rl-JM-Yjs"/>
+                <constraint firstAttribute="trailing" secondItem="Xoq-PW-KM5" secondAttribute="trailing" id="6fZ-fp-YWh"/>
+                <constraint firstItem="Xoq-PW-KM5" firstAttribute="leading" secondItem="7W5-ve-TEX" secondAttribute="leading" id="CRE-1d-N7p"/>
+                <constraint firstAttribute="trailing" secondItem="Xoq-PW-KM5" secondAttribute="trailing" id="Dqa-UD-k3s"/>
+                <constraint firstItem="Xoq-PW-KM5" firstAttribute="top" secondItem="7W5-ve-TEX" secondAttribute="top" id="EoF-HC-Buf"/>
+                <constraint firstAttribute="bottom" secondItem="Xoq-PW-KM5" secondAttribute="bottom" id="M2v-qE-F0a"/>
+                <constraint firstItem="Xoq-PW-KM5" firstAttribute="top" secondItem="7W5-ve-TEX" secondAttribute="top" id="OQs-GC-nRF"/>
+                <constraint firstAttribute="centerX" secondItem="XEb-CW-Ufr" secondAttribute="centerX" id="SF1-jA-REg"/>
+                <constraint firstItem="Xoq-PW-KM5" firstAttribute="leading" secondItem="7W5-ve-TEX" secondAttribute="leading" id="fLK-yC-eyB"/>
+                <constraint firstAttribute="trailing" secondItem="Xoq-PW-KM5" secondAttribute="trailing" id="o3Y-sg-8Sd"/>
+                <constraint firstItem="Xoq-PW-KM5" firstAttribute="top" secondItem="7W5-ve-TEX" secondAttribute="top" id="pmm-dw-ZYh"/>
+                <constraint firstItem="Xoq-PW-KM5" firstAttribute="leading" secondItem="7W5-ve-TEX" secondAttribute="leading" id="uOw-GE-HmX"/>
+                <constraint firstAttribute="bottom" secondItem="Xoq-PW-KM5" secondAttribute="bottom" id="w9x-Yw-SUc"/>
+            </constraints>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="6fZ-fp-YWh"/>
+                    <exclude reference="CRE-1d-N7p"/>
+                    <exclude reference="M2v-qE-F0a"/>
+                    <exclude reference="OQs-GC-nRF"/>
+                    <exclude reference="o3Y-sg-8Sd"/>
+                    <exclude reference="pmm-dw-ZYh"/>
+                    <exclude reference="uOw-GE-HmX"/>
+                </mask>
+            </variation>
+            <point key="canvasLocation" x="-6" y="-148"/>
+        </view>
+    </objects>
+</document>
